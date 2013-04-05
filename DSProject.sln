@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Node", "Node.csproj", "{218ABA68-1470-40EC-8902-6E0A6691A35F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Node", "Node\Node.csproj", "{218ABA68-1470-40EC-8902-6E0A6691A35F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User", "..\User\User.csproj", "{1D7A994F-C88B-4050-A51F-2D000EE9303D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User", "User\User.csproj", "{1D7A994F-C88B-4050-A51F-2D000EE9303D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
