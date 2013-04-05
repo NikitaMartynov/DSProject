@@ -27,6 +27,34 @@ namespace User
             m_receiveRegTempThread.Start();
         }
 
+        public void tcpConnection(string serverIP, string operation, int serverPort = 33336) {
+            TcpClient client = null;
+            NetworkStream netStream = null;
+            try {
+                // Create socket that is connected to server on specified port
+                client = new TcpClient(serverIP, serverPort);
+                netStream = client.GetStream();
+                byte[] data = Encoding.ASCII.GetBytes(operation);
+                // Send the encoded string to the server
+                netStream.Write(data, 0, data.Length);
+                if (operation == "getAverage") {
+                    int bytesRcvd = 0; // Bytes received in last read
+                    //Receive the same string back from the server
+                    bytesRcvd = netStream.Read(data, 0, data.Length);
+                    string stringData = Encoding.ASCII.GetString(data, 0, data.Length);
+                    m_userForm.appendTextToRichTBGetAverage(stringData);
+                }
+                
+            } 
+            catch (Exception e) {
+                Console.WriteLine(e.Message);
+            } 
+            finally{
+                netStream.Close();
+                client.Close();
+            }
+        }
+
         private void UdpSockReceiverRegTemp() {
             m_receiverSock = new UdpClient(33334);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 33333);

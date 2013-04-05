@@ -19,6 +19,7 @@ namespace User
             InitializeComponent();
 
             rBtemporaryFailure.Checked = true;
+            buttonGetAverage.Enabled = false;
             m_user = user;
         }
 
@@ -32,7 +33,9 @@ namespace User
 
         private void buttonInput_Click(object sender, EventArgs e) {
             m_user.userInit(this);
+            m_user.tcpConnection(textBoxAdminIP.Text, "start");
             buttonStart.Enabled = false;
+            buttonGetAverage.Enabled = true;
         }
 
         private void UserForm_Load(object sender, EventArgs e) {
@@ -46,6 +49,10 @@ namespace User
 
         private void groupBox1_Enter(object sender, EventArgs e) {
 
+        }
+
+        private void buttonGetAverage_Click(object sender, EventArgs e) {
+            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage");
         }
     }
 }

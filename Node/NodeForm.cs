@@ -101,6 +101,7 @@ namespace DSProject
             if (m_node.m_nodeAdmin != null) {
                 m_node.m_nodeAdmin.M_stopReceive = true;
                 m_node.m_nodeAdmin.m_receiverSock.Close();
+                m_node.m_nodeAdmin.m_listenerTcp.Server.Close();
             }
             m_node.M_stopSend = true;
            // this.Close();

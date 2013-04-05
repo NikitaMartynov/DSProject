@@ -31,6 +31,19 @@
 
         delegate void appendTextToRichTBDelegate(string value);
 
+        public void appendTextToRichTBGetAverage(string str) {
+            try {
+                if (InvokeRequired)
+                    Invoke(new appendTextToRichTBGetAverageDelegate(appendTextToRichTBGetAverage), str);
+                else
+                    rBAverage.AppendText(str);
+            }
+            catch (System.Exception ex) {
+            }
+        }
+
+        delegate void appendTextToRichTBGetAverageDelegate(string value);
+
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -42,11 +55,13 @@
             this.richTextBoxRegTemp = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rBtemporaryFailure = new System.Windows.Forms.RadioButton();
             this.rBPermanentFailure = new System.Windows.Forms.RadioButton();
+            this.rBtemporaryFailure = new System.Windows.Forms.RadioButton();
             this.buttonFailAdmin = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxAdminIP = new System.Windows.Forms.TextBox();
+            this.buttonGetAverage = new System.Windows.Forms.Button();
+            this.rBAverage = new System.Windows.Forms.RichTextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,24 +97,13 @@
             // 
             this.groupBox1.Controls.Add(this.rBPermanentFailure);
             this.groupBox1.Controls.Add(this.rBtemporaryFailure);
-            this.groupBox1.Location = new System.Drawing.Point(12, 92);
+            this.groupBox1.Location = new System.Drawing.Point(12, 178);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(100, 65);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Failure type";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
-            // 
-            // rBtemporaryFailure
-            // 
-            this.rBtemporaryFailure.AutoSize = true;
-            this.rBtemporaryFailure.Location = new System.Drawing.Point(6, 19);
-            this.rBtemporaryFailure.Name = "rBtemporaryFailure";
-            this.rBtemporaryFailure.Size = new System.Drawing.Size(75, 17);
-            this.rBtemporaryFailure.TabIndex = 0;
-            this.rBtemporaryFailure.TabStop = true;
-            this.rBtemporaryFailure.Text = "Temporary";
-            this.rBtemporaryFailure.UseVisualStyleBackColor = true;
             // 
             // rBPermanentFailure
             // 
@@ -112,9 +116,20 @@
             this.rBPermanentFailure.Text = "Permanent";
             this.rBPermanentFailure.UseVisualStyleBackColor = true;
             // 
+            // rBtemporaryFailure
+            // 
+            this.rBtemporaryFailure.AutoSize = true;
+            this.rBtemporaryFailure.Location = new System.Drawing.Point(6, 19);
+            this.rBtemporaryFailure.Name = "rBtemporaryFailure";
+            this.rBtemporaryFailure.Size = new System.Drawing.Size(75, 17);
+            this.rBtemporaryFailure.TabIndex = 0;
+            this.rBtemporaryFailure.TabStop = true;
+            this.rBtemporaryFailure.Text = "Temporary";
+            this.rBtemporaryFailure.UseVisualStyleBackColor = true;
+            // 
             // buttonFailAdmin
             // 
-            this.buttonFailAdmin.Location = new System.Drawing.Point(12, 164);
+            this.buttonFailAdmin.Location = new System.Drawing.Point(12, 250);
             this.buttonFailAdmin.Name = "buttonFailAdmin";
             this.buttonFailAdmin.Size = new System.Drawing.Size(75, 23);
             this.buttonFailAdmin.TabIndex = 6;
@@ -139,11 +154,31 @@
             this.textBoxAdminIP.TabIndex = 2;
             this.textBoxAdminIP.Text = "127.0.0.1";
             // 
+            // buttonGetAverage
+            // 
+            this.buttonGetAverage.Location = new System.Drawing.Point(12, 59);
+            this.buttonGetAverage.Name = "buttonGetAverage";
+            this.buttonGetAverage.Size = new System.Drawing.Size(75, 23);
+            this.buttonGetAverage.TabIndex = 7;
+            this.buttonGetAverage.Text = "Get Average";
+            this.buttonGetAverage.UseVisualStyleBackColor = true;
+            this.buttonGetAverage.Click += new System.EventHandler(this.buttonGetAverage_Click);
+            // 
+            // rBAverage
+            // 
+            this.rBAverage.Location = new System.Drawing.Point(6, 88);
+            this.rBAverage.Name = "rBAverage";
+            this.rBAverage.Size = new System.Drawing.Size(140, 75);
+            this.rBAverage.TabIndex = 8;
+            this.rBAverage.Text = "";
+            // 
             // UserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(429, 279);
+            this.ClientSize = new System.Drawing.Size(425, 289);
+            this.Controls.Add(this.rBAverage);
+            this.Controls.Add(this.buttonGetAverage);
             this.Controls.Add(this.buttonFailAdmin);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label2);
@@ -173,6 +208,8 @@
         private System.Windows.Forms.Button buttonFailAdmin;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBoxAdminIP;
+        private System.Windows.Forms.Button buttonGetAverage;
+        private System.Windows.Forms.RichTextBox rBAverage;
     }
 }
 

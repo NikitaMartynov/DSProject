@@ -30,13 +30,6 @@ namespace DSProject
         private IPEndPoint m_adminEndpoint;
         private Thread m_sendTempThread;
         
-
-        
-       // private int m_nodesNum = 0;
-        //private DataStore m_dataStore; //ListOfNodes<ListOfNodeValues>
-
-       // private int transactionCounter; //count transaction
-
         public Node() {
         }
         public Node(int id, NodeType nodeType) {
