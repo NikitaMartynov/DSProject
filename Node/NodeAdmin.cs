@@ -89,13 +89,17 @@ namespace DSProject
                     }
                     if (stringData == "getAverage") {
                         //compute average
-                        netStream.Write(data, 0, bytesRcvd);
+                        double average = m_dataStore.getAverage();
+                        Array.Clear(data, 0, data.Length);
+                        data = Encoding.ASCII.GetBytes(average.ToString("#.##"));
+                        netStream.Write(data, 0, data.Length);
                     }
                     netStream.Close();
                     client.Close();
                 }
                 catch (Exception e) {
                     Console.WriteLine(e.Message);
+                    break;
                     //netStream.Close();
                 }
             }

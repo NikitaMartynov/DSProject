@@ -49,9 +49,6 @@ namespace DSProject
             return tempList;
         }
 
-
-
-        //not checked
         public double getAverage() {
             int lowestCounter = getLowestCounter();
             double average = 0;
@@ -63,7 +60,6 @@ namespace DSProject
                 }
                 averageI /= lowestCounter;
                 sum += averageI;
-
             }
             average = sum / m_dataStore.Count;
             return average;

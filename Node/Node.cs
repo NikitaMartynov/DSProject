@@ -81,8 +81,6 @@ namespace DSProject
 
 
         void UdpSocketSendT() {
-            
-
             Random rndVal = new Random(M_id);
             int val = 0;
             //int sleepT = 0;
@@ -96,7 +94,7 @@ namespace DSProject
                 }
                 else {
                     UdpClient sock = new UdpClient(22222);
-                    byte[] data = Encoding.ASCII.GetBytes(Convert.ToString(M_id) + "_" + Convert.ToString(val));
+                    byte[] data = Encoding.ASCII.GetBytes( M_id.ToString() + "_" + val.ToString());
                     sock.Send(data, data.Length, m_adminEndpoint);
                     sock.Close();
                     //remoteObject.sendT(M_id, M_id);

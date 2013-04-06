@@ -35,11 +35,12 @@ namespace User
                 client = new TcpClient(serverIP, serverPort);
                 netStream = client.GetStream();
                 byte[] data = Encoding.ASCII.GetBytes(operation);
-                // Send the encoded string to the server
                 netStream.Write(data, 0, data.Length);
+
                 if (operation == "getAverage") {
                     int bytesRcvd = 0; // Bytes received in last read
                     //Receive the same string back from the server
+                    Array.Clear(data, 0, data.Length);
                     bytesRcvd = netStream.Read(data, 0, data.Length);
                     string stringData = Encoding.ASCII.GetString(data, 0, data.Length);
                     m_userForm.appendTextToRichTBGetAverage(stringData);
