@@ -13,16 +13,16 @@ namespace DSProject
 {
     public partial class NodeForm : Form
     {
-        private Node m_node;
+        private Node node;
         public NodeForm(Node node)
         {
             InitializeComponent();
 
             rBRegular.Checked = true;
-            richTextBoxTemp.Enabled = false;
+            richTextBoxTemp.Enabled = true;
             textBoxNodesNum.Enabled = false;
 
-            m_node = node;
+            this.node = node;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -37,22 +37,22 @@ namespace DSProject
             int id = Convert.ToInt16(this.textBoxID.Text);
             NodeType nodeType;
             int nodesNum = 0;
-            IPEndPoint adminEndpoint = new IPEndPoint(IPAddress.Parse(textBoxAdminIP.Text), 
-                                                        Convert.ToInt32(textBoxAdminPort.Text) );
-            var checkedButton = groupBoxNodeType.Controls.OfType<RadioButton>()
-                                      .FirstOrDefault(r => r.Checked);
-            if(checkedButton.Equals(rBAdmin)){
-                nodeType = NodeType.ADMIN;
-                nodesNum = Convert.ToInt16(textBoxNodesNum.Text);
-                this.Text = "Admin";
-                this.richTextBoxTemp.Enabled = true;
-            }
-            else{
-                 nodeType = NodeType.REGULAR;
-                 this.Text = "Regular";
-            }
-            m_node.setForm(this); 
-            m_node.nodeInit(id, nodeType, nodesNum, adminEndpoint);
+           // IPEndPoint adminEndpoint = new IPEndPoint(IPAddress.Parse(textBoxAdminIP.Text), 
+           //                                             Convert.ToInt32(textBoxAdminPort.Text) );
+           // var checkedButton = groupBoxNodeType.Controls.OfType<RadioButton>()
+            //                          .FirstOrDefault(r => r.Checked);
+           // if(checkedButton.Equals(rBAdmin)){
+           //     nodeType = NodeType.ADMIN;
+           //     nodesNum = Convert.ToInt16(textBoxNodesNum.Text);
+           //     this.Text = "Admin";
+            //    this.richTextBoxTemp.Enabled = true;
+           // }
+           // else{
+            //     nodeType = NodeType.REGULAR;
+            //     this.Text = "Regular";
+           // }
+            node.setForm(this); 
+            node.nodeInit(id);
             
             this.textBoxID.Enabled = false;
             this.rBAdmin.Enabled = false;
@@ -98,12 +98,15 @@ namespace DSProject
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
-            if (m_node.m_nodeAdmin != null) {
-                m_node.m_nodeAdmin.M_stopReceive = true;
-                m_node.m_nodeAdmin.m_receiverSock.Close();
-                m_node.m_nodeAdmin.m_listenerTcp.Server.Close();
+            if (node.NodeAdmin != null) {
+                node.NodeAdmin.StopReceive = true;
+                node.NodeAdmin.ReceiverSock.Close();
+                if(node.NodeAdmin.ListenerTcp != null)
+                    node.NodeAdmin.ListenerTcp.Server.Close();
             }
-            m_node.M_stopSend = true;
+            node.StopSend = true;
+            if(node.ListenerTcp != null)
+                node.ListenerTcp.Server.Close();
            // this.Close();
         }
 

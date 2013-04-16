@@ -33,7 +33,7 @@ namespace User
 
         private void buttonInput_Click(object sender, EventArgs e) {
             m_user.userInit(this);
-            m_user.tcpConnection(textBoxAdminIP.Text, "start");
+            m_user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin");
             buttonStart.Enabled = false;
             buttonGetAverage.Enabled = true;
         }
@@ -43,8 +43,8 @@ namespace User
         }
 
         private void UserForm_FormClosing(object sender, FormClosingEventArgs e) {
-            m_user.M_stopReceive = true;
-            m_user.m_receiverSock.Close();
+            m_user.StopReceive = true;
+            m_user.ReceiverSock.Close();
         }
 
         private void groupBox1_Enter(object sender, EventArgs e) {

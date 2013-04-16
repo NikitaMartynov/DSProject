@@ -11,20 +11,20 @@ namespace User
 {
     public class User
     {
-        public bool M_stopReceive { get; set; }
-        public UdpClient m_receiverSock;
+        public bool StopReceive { get; set; }
+        public UdpClient ReceiverSock;
 
-        private UserForm m_userForm;
-        private Thread m_receiveRegTempThread;
+        private UserForm userForm;
+        private Thread receiveRegTempThread;
 
         public User() { }
 
         public void userInit(UserForm userForm) {
 
-            m_userForm = userForm;
+            this.userForm = userForm;
 
-            m_receiveRegTempThread = new Thread(UdpSockReceiverRegTemp);
-            m_receiveRegTempThread.Start();
+            this.receiveRegTempThread = new Thread(UdpSockReceiverRegTemp);
+            this.receiveRegTempThread.Start();
         }
 
         public void tcpConnection(string serverIP, string operation, int serverPort = 33336) {
@@ -43,7 +43,7 @@ namespace User
                     Array.Clear(data, 0, data.Length);
                     bytesRcvd = netStream.Read(data, 0, data.Length);
                     string stringData = Encoding.ASCII.GetString(data, 0, data.Length);
-                    m_userForm.appendTextToRichTBGetAverage(stringData);
+                    userForm.appendTextToRichTBGetAverage(stringData);
                 }
                 
             } 
@@ -57,19 +57,19 @@ namespace User
         }
 
         private void UdpSockReceiverRegTemp() {
-            m_receiverSock = new UdpClient(33334);
+            this.ReceiverSock = new UdpClient(33334);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 33333);
             byte[] data = new byte[1024];
             string[] strAr;
             List<string[]> listStrAr = new List<string[]>();
 
             while ( true ) {
-                if ( M_stopReceive ) {
-                    m_receiverSock.Close();
+                if ( StopReceive ) {
+                    ReceiverSock.Close();
                     break;
                 }
                 try {
-                    data = m_receiverSock.Receive(ref sender);
+                    data = ReceiverSock.Receive(ref sender);
                 }
                 catch (Exception e) {
                     break;
@@ -85,9 +85,9 @@ namespace User
 
         private void writeRegTemp(List<string[]> regularTemp){
             foreach(string[] nodeTemp in regularTemp){
-                m_userForm.appendTextToRichTB("ID: " + nodeTemp[0] + " Temp:" + nodeTemp[1] + "; ");
+                userForm.appendTextToRichTB("ID: " + nodeTemp[0] + " Temp:" + nodeTemp[1] + "; ");
             }
-             m_userForm.appendTextToRichTB("\n");
+             userForm.appendTextToRichTB("\n");
         }
     }
 }
