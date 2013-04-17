@@ -144,7 +144,7 @@ namespace DSProject
                 if (StopSend == true) {
                     break;
                 }
-                UdpClient sock = new UdpClient(localPort);
+                UdpClient sock = new UdpClient(localPort); //Exception when try to switch admin
                 if (adminIP == null) {
                     
                     byte[] data = Encoding.ASCII.GetBytes("regMe_" + Id.ToString());
@@ -177,9 +177,11 @@ namespace DSProject
                         byte[] receivedData1 = null;
                     }
                     string stringData = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length);
-                    if (stringData.Equals("IamYourAdmin")) {
+                    if (stringData.Equals("IamYourNewAdmin")) {
                         adminIP = sender.Address.ToString();
                         adminEndpoint.Address = IPAddress.Parse(adminIP);
+                        byte[] data = Encoding.ASCII.GetBytes("reregMe_" + Id.ToString());
+                        sock.Send(data, data.Length, adminEndpoint);
                     }
                 }
             }

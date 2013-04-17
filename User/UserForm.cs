@@ -70,7 +70,6 @@ namespace User
                 numNodes = m_user.NodeIds.Count;
             }
             Thread.Sleep(1000);
-            //TODO how to delete previous admin from list
             m_user.tcpConnection(textBoxNewAdminIP.Text, "youNewAdmin-NodesNum_" + numNodes);
             textBoxAdminIP.Text = textBoxNewAdminIP.Text;
         }

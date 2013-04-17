@@ -180,7 +180,7 @@ namespace DSProject
                     }
                 }
                 else {
-                    byte[] data1 = Encoding.ASCII.GetBytes("IamYourAdmin");
+                    byte[] data1 = Encoding.ASCII.GetBytes("IamYourNewAdmin");
                     RegReceiverSock.Send(data1, data1.Length, broadCast);
 
                     RegReceiverSock.Client.ReceiveTimeout = 5000;
@@ -194,11 +194,11 @@ namespace DSProject
                     }
                     if (receivedData == null) continue;
                     string[] strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
-                    if (!strAr[0].Equals("regMe")) continue;
+                    if (!strAr[0].Equals("reregMe")) continue;
                     int id = Convert.ToInt16(strAr[1]);
                     if (!registeredNodes.Contains(id)) {
                         registeredNodes.Add(id);
-                        if (registeredNodes.Count == NodesNum) {// TODO check consistency with list of nodes to be forced
+                        if (registeredNodes.Count == NodesNum) {
                             initialAdmin = true;
                         }
                     }
