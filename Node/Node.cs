@@ -23,13 +23,15 @@ namespace DSProject
         
         public int Id{get; set;}
         public NodeForm Form{get;set;}
-        public bool StopSend { get; set; }
+        public bool StopSend { get; set; } // check does it helpful or not
         public NodeAdmin NodeAdmin;
         public TcpListener ListenerTcp;
 
         //private INodeAdmin remoteObject;
         //private IPEndPoint adminEndpoint;
         private string adminIP;
+        private IPEndPoint adminEndpoint;
+        private Thread regNodeThread;
         private Thread sendTempThread;
         private Thread tcpWaitUserCammandThread;
         
@@ -44,6 +46,11 @@ namespace DSProject
         public void nodeInit(int id) {
             this.Id = id;
             this.adminIP = null;
+            this.adminEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11111);
+            this.StopSend = false;
+
+            this.regNodeThread = new Thread(udpSockReg);
+            this.regNodeThread.Start();
 
             this.sendTempThread = new Thread(UdpSocketSendT);
             this.sendTempThread.Start();
@@ -56,21 +63,28 @@ namespace DSProject
             this.Form = form;
         }
 
-
-
-        void adminInit(string userIP, int port = 11111, int nodesNum = 3){
-
-            this.NodeAdmin = new NodeAdmin(this, userIP, port, nodesNum);
-            NodeType = NodeType.ADMIN;
-            adminIP = this.NodeAdmin.getLocalIPAddress();
+        public void stopNode() {
+            ListenerTcp.Server.Close();
+            StopSend = true;
+            Environment.Exit(0);
+        }
+        public void rebootNode() {
+            ListenerTcp.Server.Close();
+            StopSend = true;
+            adminIP = null;
+            adminEndpoint = null;
+            this.NodeAdmin = null;
+            this.NodeType = NodeType.REGULAR;
+            Thread.Sleep(10000);
+            nodeInit(Id);
         }
 
-        void regularInit() {
-            //TcpChannel tcpChannel = new TcpChannel();
-            //ChannelServices.RegisterChannel(tcpChannel, true);
-            //Type requiredType = typeof(INodeAdmin);
-            //remoteObject = (INodeAdmin)Activator.GetObject(requiredType, "tcp://localhost:33333/Admin");
 
+        private void adminInit(string userIP, bool initialAdmin = true, int nodesNum = 0) {
+
+            this.NodeAdmin = new NodeAdmin(this, userIP,initialAdmin, nodesNum);
+            NodeType = NodeType.ADMIN;
+            adminIP = this.NodeAdmin.getLocalIPAddress();
         }
 
         private void tcpSockSetAdminByUser() {
@@ -103,6 +117,11 @@ namespace DSProject
                     if (stringData == "youInitialAdmin") {
                         adminInit(userIP);
                     }
+                    if (stringData.Contains("youNewAdmin")) {
+                        string[] strAr = stringData.Split('_');
+                        int numNodes = Convert.ToInt16(strAr[1]);
+                        adminInit(userIP, false, numNodes);
+                    }
                     netStream.Close();
                     client.Close();
                 }
@@ -114,15 +133,66 @@ namespace DSProject
             }
         }
 
+        void udpSockReg() {
+            int adminPort = 11100;
+            int localPort = 22200 + Id;//TEST
+
+            IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
+
+            while (true) {
+                if (StopSend == true) {
+                    break;
+                }
+                UdpClient sock = new UdpClient(localPort);
+                if (adminIP == null) {
+                    
+                    byte[] data = Encoding.ASCII.GetBytes("regMe_" + Id.ToString());
+                    sock.Send(data, data.Length, broadCast);
+
+                    sock.Client.ReceiveTimeout = 5000;
+
+                    byte[] receivedData = null;
+                    try {
+                        receivedData = sock.Receive(ref sender);
+                    }
+                    catch (Exception e) {
+                        byte[] receivedData1 = null;
+                    }
+                    if (receivedData != null) {
+                        string stringData = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length);
+                        if (stringData.Equals("IamYourAdmin")) {
+                            adminIP = sender.Address.ToString();
+                            adminEndpoint.Address = IPAddress.Parse(adminIP);
+                        }
+                    }
+                    sock.Close();
+                }
+                else {
+                    byte[] receivedData = null;
+                    try {
+                        receivedData = sock.Receive(ref sender);
+                    }
+                    catch (Exception e) {
+                        byte[] receivedData1 = null;
+                    }
+                    string stringData = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length);
+                    if (stringData.Equals("IamYourAdmin")) {
+                        adminIP = sender.Address.ToString();
+                        adminEndpoint.Address = IPAddress.Parse(adminIP);
+                    }
+                }
+            }
+        }
+
         void UdpSocketSendT() {
             int adminPort = 11111;
             int localPort = 22220 + Id;//TEST
-
+            adminEndpoint.Port = adminPort;
             Random rndVal = new Random(Id);
             int val = 0;
 
-            IPEndPoint adminEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), adminPort);
-            IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
+            //IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
                                         
             while (true) {
@@ -132,7 +202,8 @@ namespace DSProject
                 val = rndVal.Next(20, 31);
 
                 if (adminIP == null) {
-
+                    Thread.Sleep(3000); // TMP 
+/*
                     UdpClient sock = new UdpClient(localPort);
                     byte[] data = Encoding.ASCII.GetBytes("regMe_"+Id.ToString());
                     sock.Send(data, data.Length, broadCast);
@@ -154,6 +225,7 @@ namespace DSProject
                         }
                     }
                     sock.Close();
+ * */
                 }
                 else{
                     if (NodeType == NodeType.ADMIN) {
@@ -174,25 +246,6 @@ namespace DSProject
                 }
             }
         }
-
-
-
-        void reportT() {
-           // int[] currentTempArray = new int[m_nodesNum];
-           // int i = 0;
-           // foreach (List<int> item in m_dataStore.getDataStore()) {
-           //     currentTempArray[i] = item.ElementAt(transactionCounter);
-           //     i++;
-           // }
-            //Send current temp array to user;
-        
-        }
-
-        void respAvrT() {
-
-            //Send Avr Temp to user
-        }
-
 
     }
 }

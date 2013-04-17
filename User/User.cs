@@ -11,17 +11,22 @@ namespace User
 {
     public class User
     {
+        public List<int> NodeIds { get; set; }
         public bool StopReceive { get; set; }
         public UdpClient ReceiverSock;
 
         private UserForm userForm;
         private Thread receiveRegTempThread;
 
+        
+
+
         public User() { }
 
         public void userInit(UserForm userForm) {
 
             this.userForm = userForm;
+            this.NodeIds = new List<int>();
 
             this.receiveRegTempThread = new Thread(UdpSockReceiverRegTemp);
             this.receiveRegTempThread.Start();
@@ -62,7 +67,6 @@ namespace User
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 33333);
             byte[] data = new byte[1024];
             string[] strAr;
-            List<string[]> listStrAr = new List<string[]>();
 
             while ( true ) {
                 if ( StopReceive ) {
@@ -75,20 +79,15 @@ namespace User
                 catch (Exception e) {
                     break;
                 }
-                strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split(';');
-                foreach (string str in strAr) {
-                    listStrAr.Add( str.Split('_') );
+                strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
+                userForm.appendTextToRichTB("ID: " + strAr[0] + " Temp:" + strAr[1] + "\n ");
+
+                int id = Convert.ToInt16( strAr[0]);
+                if (!NodeIds.Contains(id)) {
+                    NodeIds.Add(id);
                 }
-                writeRegTemp(listStrAr);
-                listStrAr.Clear();
             }
         }
 
-        private void writeRegTemp(List<string[]> regularTemp){
-            foreach(string[] nodeTemp in regularTemp){
-                userForm.appendTextToRichTB("ID: " + nodeTemp[0] + " Temp:" + nodeTemp[1] + "; ");
-            }
-             userForm.appendTextToRichTB("\n");
-        }
     }
 }

@@ -18,9 +18,7 @@ namespace DSProject
         {
             InitializeComponent();
 
-            rBRegular.Checked = true;
             richTextBoxTemp.Enabled = true;
-            textBoxNodesNum.Enabled = false;
 
             this.node = node;
         }
@@ -55,14 +53,7 @@ namespace DSProject
             node.nodeInit(id);
             
             this.textBoxID.Enabled = false;
-            this.rBAdmin.Enabled = false;
-            this.rBRegular.Enabled = false;
             this.buttonStart.Enabled = false;
-            textBoxAdminIP.Enabled = false;
-            textBoxAdminPort.Enabled = false;
-            textBoxNodesNum.Enabled = false;
-
-            
         }
 
         private void label2_Click(object sender, EventArgs e) {
@@ -100,7 +91,7 @@ namespace DSProject
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             if (node.NodeAdmin != null) {
                 node.NodeAdmin.StopReceive = true;
-                node.NodeAdmin.ReceiverSock.Close();
+                node.NodeAdmin.TempReceiverSock.Close();
                 if(node.NodeAdmin.ListenerTcp != null)
                     node.NodeAdmin.ListenerTcp.Server.Close();
             }
@@ -111,12 +102,12 @@ namespace DSProject
         }
 
         private void rBAdmin_CheckedChanged(object sender, EventArgs e) {
-            if (rBAdmin.Checked == true) {
-                textBoxNodesNum.Enabled = true;
-            }
-            else {
-                textBoxNodesNum.Enabled = false;
-            }
+         //   if (rBAdmin.Checked == true) {
+         //       textBoxNodesNum.Enabled = true;
+         //   }
+         //   else {
+         //       textBoxNodesNum.Enabled = false;
+          //  }
 
         }
 

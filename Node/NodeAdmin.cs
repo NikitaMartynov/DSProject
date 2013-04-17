@@ -12,21 +12,25 @@ namespace DSProject
 {
     public class NodeAdmin//: MarshalByRefObject, INodeAdmin
     {
-        public int NodesNum{get;set;}
+        
         public bool StopReceive{get;set;}
-        public UdpClient ReceiverSock;
+        public UdpClient TempReceiverSock;
+        public UdpClient RegReceiverSock;
         public TcpListener ListenerTcp;
         public bool StartedByUser { get; set; }
+
+        private int NodesNum { get; set; }
+        private bool initialAdmin; 
 
 
         private DataStore dataStore; //DictionaryOfNodes<ListOfNodeValues>
         private Node node;
 
+        private Thread regNodesThread;
         private Thread receiveTempThread;
         private Thread workWithUserThread;
-        private int port;
-        private List<int> registeredNodes;
-        private List<int> markedNodes;
+        //private List<int> registeredNodes;
+        //private List<int> markedNodes;
 
         private IPEndPoint userEndPoint;
 
@@ -35,14 +39,13 @@ namespace DSProject
 
 
 
-        public NodeAdmin(Node node, string userIP, int port, int nodesNum) {
+        public NodeAdmin(Node node, string userIP, bool initialAdmin, int nodesNum) {
             this.node = node;
-            this.port = port;
             this.StopReceive = false;
+            this.initialAdmin = initialAdmin;
             this.NodesNum = nodesNum;
             this.dataStore = new DataStore();
-            //this.registeredNodes = new List<int>(this.NodesNum);
-            //this.markedNodes = new List<int>(this.NodesNum);
+
             dataStore.addNewNode(node.Id);
 
             start(userIP);
@@ -63,6 +66,20 @@ namespace DSProject
                 }
             }
             return localIP;
+        }
+
+        private void start(string userIP) {
+            this.userEndPoint = new IPEndPoint(IPAddress.Parse(userIP), 33334);
+            StartedByUser = true;
+
+            workWithUserThread = new Thread(tcpSockGetAvrAndFailByUser);
+            workWithUserThread.Start();
+
+            regNodesThread = new Thread(udpSockRegNodes);
+            regNodesThread.Start();
+
+            receiveTempThread = new Thread(udpSockReceiverTemp);
+            receiveTempThread.Start();
         }
 
         private void tcpSockGetAvrAndFailByUser() {
@@ -99,51 +116,117 @@ namespace DSProject
                         data1 = Encoding.ASCII.GetBytes(average.ToString("#.##"));
                         netStream.Write(data1, 0, data1.Length);
                     }
-                    if (stringData == "failTemporary") {
-
+                    if (stringData == "permanentFail") {
+                        netStream.Close();
+                        client.Close();
+                        ListenerTcp.Server.Close();
+                        TempReceiverSock.Close();
+                        RegReceiverSock.Close();
+                        node.stopNode();
+                        break;
                     }
-                    if (stringData == "failPermanent") {
-
+                    if (stringData == "temporaryFail") {
+                        netStream.Close();
+                        client.Close();
+                        ListenerTcp.Server.Close();
+                        TempReceiverSock.Close();
+                        RegReceiverSock.Close();
+                        node.rebootNode();
+                        break;
                     }
                     netStream.Close();
                     client.Close();
                 }
                 catch (Exception e) {
                     Console.WriteLine(e.Message);
+                    ListenerTcp.Server.Close();
                     break;
                     //netStream.Close();
                 }
             }
         }
 
-        private void start(string userIP){
-            this.userEndPoint = new IPEndPoint(IPAddress.Parse(userIP), 33334);
-            StartedByUser = true;
+        private void udpSockRegNodes() {
+            int localPort = 11100;
+            int remotePort = 22202;
+            RegReceiverSock = new UdpClient(localPort);
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, remotePort);
+            IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), remotePort);
+            List<int> registeredNodes = new List<int> ();
 
-            workWithUserThread = new Thread(tcpSockGetAvrAndFailByUser);
-            workWithUserThread.Start();
+            byte[] data = new byte[1024];
+            string[] stringData;
+            while (true) {
+                if (StopReceive == true) {
+                    RegReceiverSock.Close();
+                    break;
+                }
+                if (initialAdmin) {
+                    try {
+                        data = RegReceiverSock.Receive(ref sender);
+                    }
+                    catch (Exception e) {
+                        break;
+                    }
+                    stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
+                    if (stringData[0].Equals("regMe")) {
+                        int id = Convert.ToInt16(stringData[1]);
+                        if (!dataStore.addNewNode(id)) {
+                            node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
+                        }
+                        byte[] data1 = Encoding.ASCII.GetBytes("IamYourAdmin");
 
-            receiveTempThread = new Thread(udpSockReceiverTemp);
-            receiveTempThread.Start();  
+                        TempReceiverSock.Send(data1, data1.Length, sender);
+                    }
+                }
+                else {
+                    byte[] data1 = Encoding.ASCII.GetBytes("IamYourAdmin");
+                    RegReceiverSock.Send(data1, data1.Length, broadCast);
+
+                    RegReceiverSock.Client.ReceiveTimeout = 5000;
+
+                    byte[] receivedData = null;
+                    try {
+                        receivedData = RegReceiverSock.Receive(ref sender);
+                    }
+                    catch (Exception e) {
+                        byte[] receivedData1 = null;
+                    }
+                    if (receivedData == null) continue;
+                    string[] strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
+                    if (!strAr[0].Equals("regMe")) continue;
+                    int id = Convert.ToInt16(strAr[1]);
+                    if (!registeredNodes.Contains(id)) {
+                        registeredNodes.Add(id);
+                        if (registeredNodes.Count == NodesNum) {// TODO check consistency with list of nodes to be forced
+                            initialAdmin = true;
+                        }
+                    }
+                    
+                }
+
+            }
+   
         }
 
         private void udpSockReceiverTemp() {
-            ReceiverSock = new UdpClient(11111);
+            TempReceiverSock = new UdpClient(11111);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 22222);
             byte[] data = new byte[1024];
             string[] stringData;
             while (true) {
                 if (StopReceive == true) {
-                    ReceiverSock.Close();
+                    TempReceiverSock.Close();
                     break;
                 }
                 try {
-                    data = ReceiverSock.Receive(ref sender);
+                    data = TempReceiverSock.Receive(ref sender);
                 }
                 catch (Exception e) {
                     break;
                 }
                 stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
+                
                 if (stringData[0].Equals("regMe")) {
                     int id = Convert.ToInt16(stringData[1]);
                     if (!dataStore.addNewNode(id)) {
@@ -151,7 +234,7 @@ namespace DSProject
                     }
                     byte[] data1 = Encoding.ASCII.GetBytes("IamYourAdmin");
 
-                    ReceiverSock.Send(data1, data1.Length, sender);
+                    TempReceiverSock.Send(data1, data1.Length, sender);
                 }
                 else {
                     int id = Convert.ToInt16(stringData[0]);
@@ -172,90 +255,13 @@ namespace DSProject
                 }
             }
         }
-/*
-        // return true is all nodes tempereture received 
-        private bool writeTemp(int id, int val) {
-            bool alreadyRegisteredAndWaitingOthers = false;
-            if (!isAllNodesRegistered()) {
-                if (registerNode(id)) {
-                    markNode(id);
-                }
-                else{
-                    node.Form.appendTextToRichTB(String.Format("Node {0} registered and wait for others\n", id) );
-                    alreadyRegisteredAndWaitingOthers = true;
-                }
-            }
-            if (alreadyRegisteredAndWaitingOthers) return false;
 
-            if (isAllNodesRegistered()) {
-                if (!registeredNodes.Contains(id)) {
-                    node.Form.appendTextToRichTB(String.Format("NOT REGISTERED Node {0} denied!\n", id));
-
-                    return false;
-                }
-                if (!markNode(id)) {
-                    node.Form.appendTextToRichTB(String.Format("Node {0} marked and wait for others\n", id));
-                }
-            }
-            if (dataStore.write(id, val)) {
-                node.Form.appendTextToRichTB( String.Format("I am:{0}; Temp:{1}\n", id, val) );
-                }
-            else {
-                node.Form.appendTextToRichTB(String.Format("I am:{0}; RenewTemp:{1}\n", id, val));
-            }
-            if (isAllNodesMarked()) {
-                markedNodes.Clear();
-                return true;
-            }
-            return false;
-        }
-        */
         private void udpSockSendRegTemp(IPEndPoint receiverEndPoint, string regularTemp, int portSender = 33333) {
             UdpClient sock = new UdpClient(portSender);
             byte[] data = Encoding.ASCII.GetBytes(regularTemp);
             sock.Send(data, data.Length, receiverEndPoint);
             sock.Close();
         }
-
-        private void lastTempToString(List<int[]> lastTemp, out string str) {
-            str = " ";
-            foreach (int[] item in lastTemp) {
-                str += String.Format("{0}_{1};", item[0], item[1]);
-            }
-            str = str.Remove(0,1);
-            str = str.Remove(str.Length - 1);
-        }
-
-        private bool isAllNodesRegistered() {
-            if (registeredNodes.Capacity == registeredNodes.Count) {
-                return true;
-            }
-            return false;
-        }
-
-        private bool registerNode(int id) {
-            if (!registeredNodes.Contains(id)) {
-                registeredNodes.Add(id);
-                return true;
-            }
-            return false;
-        }
-
-        private bool isAllNodesMarked() {
-            if (markedNodes.Capacity == markedNodes.Count) {
-                return true;
-            }
-            return false;
-        }
-
-        private bool markNode(int id) {
-            if (!markedNodes.Contains(id)) {
-                markedNodes.Add(id);
-                return true;
-            }
-            return false;
-        }
-
-
+       
     }
 }
