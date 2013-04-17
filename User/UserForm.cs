@@ -52,7 +52,7 @@ namespace User
         }
 
         private void buttonGetAverage_Click(object sender, EventArgs e) {
-            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage");
+            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage", 30000);
         }
     }
 }

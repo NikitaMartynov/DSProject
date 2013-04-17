@@ -27,12 +27,12 @@ namespace User
             this.receiveRegTempThread.Start();
         }
 
-        public void tcpConnection(string serverIP, string operation, int serverPort = 33336) {
+        public void tcpConnection(string remoteIP, string operation, int remotePort = 33336) {
             TcpClient client = null;
             NetworkStream netStream = null;
             try {
                 // Create socket that is connected to server on specified port
-                client = new TcpClient(serverIP, serverPort);
+                client = new TcpClient(remoteIP, remotePort);
                 netStream = client.GetStream();
                 byte[] data = Encoding.ASCII.GetBytes(operation);
                 netStream.Write(data, 0, data.Length);
@@ -42,13 +42,14 @@ namespace User
                     //Receive the same string back from the server
                     Array.Clear(data, 0, data.Length);
                     bytesRcvd = netStream.Read(data, 0, data.Length);
-                    string stringData = Encoding.ASCII.GetString(data, 0, data.Length);
-                    userForm.appendTextToRichTBGetAverage(stringData);
+                    string stringData = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0');
+                    userForm.appendTextToRichTBGetAverage(stringData+"\n");
                 }
                 
             } 
             catch (Exception e) {
                 Console.WriteLine(e.Message);
+                //When User starts while no nodes run, make a pop up to inform with what should he do
             } 
             finally{
                 netStream.Close();

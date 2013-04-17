@@ -43,20 +43,12 @@ namespace DSProject
 
         public void nodeInit(int id) {
             this.Id = id;
-            //this.NodeType = nodeType;
             this.adminIP = null;
-           // this.adminEndpoint = adminEndpoint;
 
-           // if (this.NodeType == NodeType.ADMIN) {
-            //    adminInit(this.adminEndpoint.Port, nodesNum);
-           // }
-          //  else {
-          //      regularInit();
-           // }
             this.sendTempThread = new Thread(UdpSocketSendT);
             this.sendTempThread.Start();
 
-            this.tcpWaitUserCammandThread = new Thread(tcpSockTalkWithUser);
+            this.tcpWaitUserCammandThread = new Thread(tcpSockSetAdminByUser);
             this.tcpWaitUserCammandThread.Start();
         }
 
@@ -81,7 +73,7 @@ namespace DSProject
 
         }
 
-        private void tcpSockTalkWithUser() {
+        private void tcpSockSetAdminByUser() {
             int servPort = 33336 + Id; //TEST
             ListenerTcp = null;
             try {
@@ -90,7 +82,6 @@ namespace DSProject
                 ListenerTcp.Start();
             }
             catch (SocketException e) {
-                // IPAddress.Any
                 Console.WriteLine(e.ErrorCode + ": " + e.Message);
                 Environment.Exit(e.ErrorCode);
             }
@@ -129,11 +120,10 @@ namespace DSProject
 
             Random rndVal = new Random(Id);
             int val = 0;
-            //int sleepT = 0;
+
             IPEndPoint adminEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), adminPort);
             IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
-            // adminEndpoint = new IPEndPoint(IPAddress.Parse(adminIP), 11111);
                                         
             while (true) {
                 if (StopSend == true) {

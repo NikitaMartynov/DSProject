@@ -70,6 +70,22 @@ namespace DSProject
             return tempList;
         }
 */
+
+        public double getAverage() {
+            double average = 0;
+            double sum = 0;
+            foreach (KeyValuePair<int, List<int>> item in dataStore) {
+                double averageI = 0;
+                for (int i = 0; i < item.Value.Count; i++) {
+                    averageI += item.Value.ElementAt(i);
+                }
+                averageI /= item.Value.Count;
+                sum += averageI;
+            }
+            average = sum / dataStore.Count;
+            return average;
+        }
+/*
         public double getAverage() {
             int lowestCounter = getLowestCounter();
             double average = 0;
@@ -85,7 +101,7 @@ namespace DSProject
             average = sum / dataStore.Count;
             return average;
         }
-
+        */
         private int getLowestCounter() {
             int lowestCounter = 0;
             if (dataStore.Count != 0) {

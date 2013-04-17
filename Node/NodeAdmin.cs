@@ -41,8 +41,8 @@ namespace DSProject
             this.StopReceive = false;
             this.NodesNum = nodesNum;
             this.dataStore = new DataStore();
-            this.registeredNodes = new List<int>(this.NodesNum);
-            this.markedNodes = new List<int>(this.NodesNum);
+            //this.registeredNodes = new List<int>(this.NodesNum);
+            //this.markedNodes = new List<int>(this.NodesNum);
             dataStore.addNewNode(node.Id);
 
             start(userIP);
@@ -65,24 +65,22 @@ namespace DSProject
             return localIP;
         }
 
-        private void tcpSockTalkWithUser() {
-            int servPort = 33336;
+        private void tcpSockGetAvrAndFailByUser() {
+            int localPort = 30000;
             ListenerTcp  = null;
             try {
                 // Create a TCPListener to accept client connections
-                ListenerTcp = new TcpListener(IPAddress.Any, servPort);
+                ListenerTcp = new TcpListener(IPAddress.Any, localPort);
                 ListenerTcp.Start();
             }
             catch (SocketException e) {
                 // IPAddress.Any
                 Console.WriteLine(e.ErrorCode + ": " + e.Message);
                 Environment.Exit(e.ErrorCode);
-
             }
 
-            byte[] data = new byte[1024]; 
+            
             string stringData;
-            int bytesRcvd; 
             while (true) { 
                 TcpClient client = null;
                 NetworkStream netStream = null;
@@ -91,14 +89,21 @@ namespace DSProject
                     client = ListenerTcp.AcceptTcpClient(); // Get client connection
                      netStream = client.GetStream();
 
+                    byte[] data = new byte[100]; 
                     netStream.Read(data, 0, data.Length);
                     stringData = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0');
                     if (stringData == "getAverage") {
                         //compute average
                         double average = dataStore.getAverage();
-                        Array.Clear(data, 0, data.Length);
-                        data = Encoding.ASCII.GetBytes(average.ToString("#.##"));
-                        netStream.Write(data, 0, data.Length);
+                        byte[] data1 = new byte[100]; 
+                        data1 = Encoding.ASCII.GetBytes(average.ToString("#.##"));
+                        netStream.Write(data1, 0, data1.Length);
+                    }
+                    if (stringData == "failTemporary") {
+
+                    }
+                    if (stringData == "failPermanent") {
+
                     }
                     netStream.Close();
                     client.Close();
@@ -115,8 +120,8 @@ namespace DSProject
             this.userEndPoint = new IPEndPoint(IPAddress.Parse(userIP), 33334);
             StartedByUser = true;
 
-            //workWithUserThread = new Thread(tcpSockTalkWithUser);
-            //workWithUserThread.Start();
+            workWithUserThread = new Thread(tcpSockGetAvrAndFailByUser);
+            workWithUserThread.Start();
 
             receiveTempThread = new Thread(udpSockReceiverTemp);
             receiveTempThread.Start();  
@@ -138,7 +143,6 @@ namespace DSProject
                 catch (Exception e) {
                     break;
                 }
-                //Thread.Sleep(5000);
                 stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
                 if (stringData[0].Equals("regMe")) {
                     int id = Convert.ToInt16(stringData[1]);
