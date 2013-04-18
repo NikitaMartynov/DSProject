@@ -88,7 +88,7 @@ namespace DSProject
         }
 
         private void tcpSockSetAdminByUser() {
-            int servPort = 33336 + Id; //TEST
+            int servPort = 33336; //TEST 33336 + Id; (id = 2) // real life 33336
             ListenerTcp = null;
             try {
                 // Create a TCPListener to accept client connections
@@ -135,7 +135,7 @@ namespace DSProject
 
         void udpSockReg() {
             int adminPort = 11100;
-            int localPort = 22200 + Id;//TEST
+            int localPort = 22202;//TEST  22200 + Id; (id = 2) // real life 22202
 
             IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
@@ -189,7 +189,7 @@ namespace DSProject
 
         void UdpSocketSendT() {
             int adminPort = 11111;
-            int localPort = 22220 + Id;//TEST
+            int localPort = 22222;//TEST 22220 + Id; (id = 2) // real life 22222
             adminEndpoint.Port = adminPort;
             Random rndVal = new Random(Id);
             int val = 0;

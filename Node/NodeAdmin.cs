@@ -226,21 +226,9 @@ namespace DSProject
                     break;
                 }
                 stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
-                
-                if (stringData[0].Equals("regMe")) {
-                    int id = Convert.ToInt16(stringData[1]);
-                    if (!dataStore.addNewNode(id)) {
-                        node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
-                    }
-                    byte[] data1 = Encoding.ASCII.GetBytes("IamYourAdmin");
-
-                    TempReceiverSock.Send(data1, data1.Length, sender);
-                }
-                else {
-                    int id = Convert.ToInt16(stringData[0]);
-                    int val = Convert.ToInt16(stringData[1]);
-                    blockingWriteTransaction(id, val);
-                }
+                int id = Convert.ToInt16(stringData[0]);
+                int val = Convert.ToInt16(stringData[1]);
+                blockingWriteTransaction(id, val);
             }
         }
 
