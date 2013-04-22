@@ -88,7 +88,7 @@ namespace DSProject
         }
 
         private void tcpSockSetAdminByUser() {
-            int servPort = 33336; //TEST 33336 + Id; (id = 2) // real life 33336
+            int servPort = 30000 + Id; //TEST 33336 + Id; (id = 2) // real life 33336
             ListenerTcp = null;
             try {
                 // Create a TCPListener to accept client connections
@@ -135,7 +135,7 @@ namespace DSProject
 
         void udpSockReg() {
             int adminPort = 11100;
-            int localPort = 22202;//TEST  22200 + Id; (id = 2) // real life 22202
+            int localPort = 22200 + Id;//TEST  22200 + Id; (id = 2) // real life 22202
 
             IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
@@ -189,7 +189,7 @@ namespace DSProject
 
         void UdpSocketSendT() {
             int adminPort = 11111;
-            int localPort = 22222;//TEST 22220 + Id; (id = 2) // real life 22222
+            int localPort = 22220 + Id;//TEST 22220 + Id; (id = 2) // real life 22222
             adminEndpoint.Port = adminPort;
             Random rndVal = new Random(Id);
             int val = 0;
@@ -205,29 +205,6 @@ namespace DSProject
 
                 if (adminIP == null) {
                     Thread.Sleep(3000); // TMP 
-/*
-                    UdpClient sock = new UdpClient(localPort);
-                    byte[] data = Encoding.ASCII.GetBytes("regMe_"+Id.ToString());
-                    sock.Send(data, data.Length, broadCast);
-
-                    sock.Client.ReceiveTimeout = 5000;
-
-                    byte[] receivedData = null;
-                    try {
-                        receivedData = sock.Receive(ref sender);
-                    }
-                    catch (Exception e) {
-                        byte[] receivedData1 = null;
-                    }
-                    if( receivedData != null){
-                        string stringData = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length);
-                        if (stringData.Equals("IamYourAdmin")) {
-                            adminIP = sender.Address.ToString();
-                            adminEndpoint.Address = IPAddress.Parse(adminIP);
-                        }
-                    }
-                    sock.Close();
- * */
                 }
                 else{
                     if (NodeType == NodeType.ADMIN) {

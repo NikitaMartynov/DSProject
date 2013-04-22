@@ -64,12 +64,14 @@
             this.rBAverage = new System.Windows.Forms.RichTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxNewAdminIP = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBoxAdminPort = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(12, 30);
+            this.buttonStart.Location = new System.Drawing.Point(12, 52);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 0;
@@ -99,7 +101,7 @@
             // 
             this.groupBox1.Controls.Add(this.rBPermanentFailure);
             this.groupBox1.Controls.Add(this.rBtemporaryFailure);
-            this.groupBox1.Location = new System.Drawing.Point(12, 211);
+            this.groupBox1.Location = new System.Drawing.Point(12, 233);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(100, 65);
             this.groupBox1.TabIndex = 5;
@@ -131,7 +133,7 @@
             // 
             // buttonFailAdmin
             // 
-            this.buttonFailAdmin.Location = new System.Drawing.Point(12, 282);
+            this.buttonFailAdmin.Location = new System.Drawing.Point(12, 304);
             this.buttonFailAdmin.Name = "buttonFailAdmin";
             this.buttonFailAdmin.Size = new System.Drawing.Size(75, 23);
             this.buttonFailAdmin.TabIndex = 6;
@@ -159,7 +161,7 @@
             // 
             // buttonGetAverage
             // 
-            this.buttonGetAverage.Location = new System.Drawing.Point(12, 140);
+            this.buttonGetAverage.Location = new System.Drawing.Point(12, 162);
             this.buttonGetAverage.Name = "buttonGetAverage";
             this.buttonGetAverage.Size = new System.Drawing.Size(75, 23);
             this.buttonGetAverage.TabIndex = 7;
@@ -169,7 +171,7 @@
             // 
             // rBAverage
             // 
-            this.rBAverage.Location = new System.Drawing.Point(12, 59);
+            this.rBAverage.Location = new System.Drawing.Point(12, 81);
             this.rBAverage.Name = "rBAverage";
             this.rBAverage.Size = new System.Drawing.Size(140, 75);
             this.rBAverage.TabIndex = 8;
@@ -178,7 +180,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 192);
+            this.label3.Location = new System.Drawing.Point(12, 214);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(74, 13);
             this.label3.TabIndex = 9;
@@ -187,17 +189,37 @@
             // 
             // textBoxNewAdminIP
             // 
-            this.textBoxNewAdminIP.Location = new System.Drawing.Point(92, 192);
+            this.textBoxNewAdminIP.Location = new System.Drawing.Point(92, 214);
             this.textBoxNewAdminIP.Name = "textBoxNewAdminIP";
             this.textBoxNewAdminIP.Size = new System.Drawing.Size(84, 20);
             this.textBoxNewAdminIP.TabIndex = 10;
             this.textBoxNewAdminIP.Text = "127.0.0.1";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(18, 33);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(58, 13);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "Admin Port";
+            this.label4.Click += new System.EventHandler(this.label4_Click);
+            // 
+            // textBoxAdminPort
+            // 
+            this.textBoxAdminPort.Location = new System.Drawing.Point(92, 30);
+            this.textBoxAdminPort.Name = "textBoxAdminPort";
+            this.textBoxAdminPort.Size = new System.Drawing.Size(88, 20);
+            this.textBoxAdminPort.TabIndex = 12;
+            this.textBoxAdminPort.Text = "30000";
             // 
             // UserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(425, 339);
+            this.Controls.Add(this.textBoxAdminPort);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.textBoxNewAdminIP);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.rBAverage);
@@ -235,6 +257,8 @@
         private System.Windows.Forms.RichTextBox rBAverage;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBoxNewAdminIP;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox textBoxAdminPort;
     }
 }
 

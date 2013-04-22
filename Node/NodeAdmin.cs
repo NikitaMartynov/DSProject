@@ -10,9 +10,8 @@ using System.Net.Sockets;
 
 namespace DSProject
 {
-    public class NodeAdmin//: MarshalByRefObject, INodeAdmin
+    public class NodeAdmin
     {
-        
         public bool StopReceive{get;set;}
         public UdpClient TempReceiverSock;
         public UdpClient RegReceiverSock;
@@ -22,15 +21,12 @@ namespace DSProject
         private int NodesNum { get; set; }
         private bool initialAdmin; 
 
-
         private DataStore dataStore; //DictionaryOfNodes<ListOfNodeValues>
         private Node node;
 
         private Thread regNodesThread;
         private Thread receiveTempThread;
         private Thread workWithUserThread;
-        //private List<int> registeredNodes;
-        //private List<int> markedNodes;
 
         private IPEndPoint userEndPoint;
 
@@ -83,7 +79,7 @@ namespace DSProject
         }
 
         private void tcpSockGetAvrAndFailByUser() {
-            int localPort = 30000;
+            int localPort = 33000;
             ListenerTcp  = null;
             try {
                 // Create a TCPListener to accept client connections
@@ -95,8 +91,6 @@ namespace DSProject
                 Console.WriteLine(e.ErrorCode + ": " + e.Message);
                 Environment.Exit(e.ErrorCode);
             }
-
-            
             string stringData;
             while (true) { 
                 TcpClient client = null;
@@ -146,9 +140,9 @@ namespace DSProject
             }
         }
 
-        private void udpSockRegNodes() {
+        private void udpSockRegNodes() { // TODO Change from broadcast to multicast with different ports and IPs
             int localPort = 11100;
-            int remotePort = 22202;
+            int remotePort = 22202; 
             RegReceiverSock = new UdpClient(localPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, remotePort);
             IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), remotePort);

@@ -32,7 +32,7 @@ namespace User
             this.receiveRegTempThread.Start();
         }
 
-        public void tcpConnection(string remoteIP, string operation, int remotePort = 33336) {
+        public void tcpConnection(string remoteIP, string operation, int remotePort = 30000) {
             TcpClient client = null;
             NetworkStream netStream = null;
             try {

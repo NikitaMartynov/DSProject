@@ -35,8 +35,10 @@ namespace User
 
         private void buttonInput_Click(object sender, EventArgs e) {
             m_user.userInit(this);
-            m_user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin");
+            m_user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin", Convert.ToInt32(textBoxAdminPort.Text));
+
             buttonStart.Enabled = false;
+            textBoxAdminPort.Enabled = false;
             textBoxAdminIP.Enabled = false;
             buttonFailAdmin.Enabled = true;
             buttonGetAverage.Enabled = true;
@@ -56,17 +58,17 @@ namespace User
         }
 
         private void buttonGetAverage_Click(object sender, EventArgs e) {
-            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage", 30000);
+            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage", 33000);
         }
 
         private void buttonFailAdmin_Click(object sender, EventArgs e) {
             int numNodes;
             if (rBPermanentFailure.Checked == true) {
-                m_user.tcpConnection(textBoxAdminIP.Text, "permanentFail", 30000);
+                m_user.tcpConnection(textBoxAdminIP.Text, "permanentFail", 33000);
                 numNodes = m_user.NodeIds.Count-1;
             }
             else {
-                m_user.tcpConnection(textBoxAdminIP.Text, "temporaryFail", 30000);
+                m_user.tcpConnection(textBoxAdminIP.Text, "temporaryFail", 33000);
                 numNodes = m_user.NodeIds.Count;
             }
             Thread.Sleep(1000);
@@ -75,6 +77,10 @@ namespace User
         }
 
         private void label3_Click(object sender, EventArgs e) {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e) {
 
         }
     }

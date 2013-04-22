@@ -92,8 +92,10 @@ namespace DSProject
             if (node.NodeAdmin != null) {
                 node.NodeAdmin.StopReceive = true;
                 node.NodeAdmin.TempReceiverSock.Close();
-                if(node.NodeAdmin.ListenerTcp != null)
+                if (node.NodeAdmin.ListenerTcp != null) {
                     node.NodeAdmin.ListenerTcp.Server.Close();
+                    node.NodeAdmin.RegReceiverSock.Client.Close();
+                }
             }
             node.StopSend = true;
             if(node.ListenerTcp != null)
