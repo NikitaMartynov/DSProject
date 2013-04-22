@@ -135,9 +135,9 @@ namespace DSProject
 
         void udpSockReg() {
             int adminPort = 11100;
-            int localPort = 22200 + Id;//TEST  22200 + Id; (id = 2) // real life 22202
+            int localPort = 22200 + Id;//TEST  22200 + Id; (id = 2) // real life 22202    OK 255.255.255.255
 
-            IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
+            IPEndPoint broadCast = new IPEndPoint(IPAddress.Broadcast, adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
 
             while (true) {
@@ -145,6 +145,7 @@ namespace DSProject
                     break;
                 }
                 UdpClient sock = new UdpClient(localPort); //Exception when try to switch admin
+                sock.EnableBroadcast = true;
                 if (adminIP == null) {
                     
                     byte[] data = Encoding.ASCII.GetBytes("regMe_" + Id.ToString());
@@ -189,7 +190,7 @@ namespace DSProject
 
         void UdpSocketSendT() {
             int adminPort = 11111;
-            int localPort = 22220 + Id;//TEST 22220 + Id; (id = 2) // real life 22222
+            int localPort = 22220 + Id;//TEST 22220 + Id; (id = 2) // real life 22222     OK
             adminEndpoint.Port = adminPort;
             Random rndVal = new Random(Id);
             int val = 0;
