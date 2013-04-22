@@ -32,6 +32,7 @@ namespace DSProject
 
         private void button1_Click(object sender, EventArgs e)
         {
+            
             int id = Convert.ToInt16(this.textBoxID.Text);
             NodeType nodeType;
             int nodesNum = 0;
