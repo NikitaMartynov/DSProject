@@ -136,17 +136,15 @@ namespace DSProject
                     Console.WriteLine(e.Message);
                     ListenerTcp.Server.Close();
                     break;
-                    //netStream.Close();
                 }
             }
         }
 
-        private void udpSockRegNodes() { // TODO Change from broadcast to multicast with different ports and IPs
+        private void udpSockRegNodes() { 
             int localPort = 11100;
             int remoteDefPort = 22200;
             RegReceiverSock = new UdpClient(localPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, remoteDefPort);
-            //IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), remotePort);
             List<int> reregisteredNodes = new List<int>();
 
             byte[] data = new byte[1024];
@@ -161,6 +159,8 @@ namespace DSProject
                         data = RegReceiverSock.Receive(ref sender);
                     }
                     catch (Exception e) {
+                        // TODO Exception Receive fail because connected party respond false on the request, after admin 
+                        //node changed, so no new nodes can be registered
                         break;
                     }
                     stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');

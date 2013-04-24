@@ -89,7 +89,7 @@ namespace DSProject
         }
 
         private void tcpSockSetAdminByUser() {
-            int servPort = 30000 + Id; //TEST 33336 + Id; (id = 2) // real life 33336 OK
+            int servPort = 30000 + Id; //OK
             ListenerTcp = null;
             try {
                 // Create a TCPListener to accept client connections
@@ -108,7 +108,7 @@ namespace DSProject
                 NetworkStream netStream = null;
 
                 try {
-                    client = ListenerTcp.AcceptTcpClient(); // Get client connection
+                    client = ListenerTcp.AcceptTcpClient(); 
                     netStream = client.GetStream();
 
                     string userIP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
@@ -140,14 +140,14 @@ namespace DSProject
                 catch (Exception e) {
                     Console.WriteLine(e.Message);
                     break;
-                    //netStream.Close();
+
                 }
             }
         }
 
         void udpSockReg() {
             int adminPort = 11100;
-            int localPort = 22200 + Id;//TEST  22200 + Id; (id = 2) // real life 22202    OK 255.255.255.255
+            int localPort = 22200 + Id;//   OK 
             adminEndpointReg.Port = adminPort;
 
             IPEndPoint broadCast = new IPEndPoint(IPAddress.Broadcast, adminPort);
@@ -157,7 +157,7 @@ namespace DSProject
                 if (StopSend == true) {
                     break;
                 }
-                UdpClient sock = new UdpClient(localPort); //Exception when try to switch admin
+                UdpClient sock = new UdpClient(localPort); 
                 sock.EnableBroadcast = true;
                 if (adminIP == null) {
 
@@ -203,12 +203,11 @@ namespace DSProject
 
         void UdpSocketSendT() {
             int adminPort = 11111;
-            int localPort = 22220 + Id;//TEST 22220 + Id; (id = 2) // real life 22222     OK
+            int localPort = 22220 + Id;//  OK
             adminEndpointData.Port = adminPort;
             Random rndVal = new Random(Id);
             int val = 0;
 
-            //IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), adminPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, adminPort);
 
             while (true) {
