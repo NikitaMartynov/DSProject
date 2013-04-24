@@ -7,19 +7,20 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace DSProject
 {
     public class NodeAdmin
     {
-        public bool StopReceive{get;set;}
+        public bool StopReceive { get; set; }
         public UdpClient TempReceiverSock;
         public UdpClient RegReceiverSock;
         public TcpListener ListenerTcp;
         public bool StartedByUser { get; set; }
 
-        private int NodesNum { get; set; }
-        private bool initialAdmin; 
+        private Dictionary<int, string> runningRegNodes;
+        private bool initialAdmin;
 
         private DataStore dataStore; //DictionaryOfNodes<ListOfNodeValues>
         private Node node;
@@ -35,11 +36,11 @@ namespace DSProject
 
 
 
-        public NodeAdmin(Node node, string userIP, bool initialAdmin, int nodesNum) {
+        public NodeAdmin(Node node, string userIP, bool initialAdmin, Dictionary<int, string> runningRegNodes) {
             this.node = node;
             this.StopReceive = false;
             this.initialAdmin = initialAdmin;
-            this.NodesNum = nodesNum;
+            this.runningRegNodes = runningRegNodes;
             this.dataStore = new DataStore();
 
             dataStore.addNewNode(node.Id);
@@ -48,8 +49,8 @@ namespace DSProject
         }
 
         public void sendT(int id, int val) {
-            if(StartedByUser)
-                blockingWriteTransaction(id, val);
+            if (StartedByUser)
+                blockingWriteTransaction(id, val, getLocalIPAddress());
         }
 
         public string getLocalIPAddress() {
@@ -80,7 +81,7 @@ namespace DSProject
 
         private void tcpSockGetAvrAndFailByUser() {
             int localPort = 33000;
-            ListenerTcp  = null;
+            ListenerTcp = null;
             try {
                 // Create a TCPListener to accept client connections
                 ListenerTcp = new TcpListener(IPAddress.Any, localPort);
@@ -92,21 +93,21 @@ namespace DSProject
                 Environment.Exit(e.ErrorCode);
             }
             string stringData;
-            while (true) { 
+            while (true) {
                 TcpClient client = null;
                 NetworkStream netStream = null;
 
                 try {
                     client = ListenerTcp.AcceptTcpClient(); // Get client connection
-                     netStream = client.GetStream();
+                    netStream = client.GetStream();
 
-                    byte[] data = new byte[100]; 
+                    byte[] data = new byte[100];
                     netStream.Read(data, 0, data.Length);
                     stringData = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0');
                     if (stringData == "getAverage") {
                         //compute average
                         double average = dataStore.getAverage();
-                        byte[] data1 = new byte[100]; 
+                        byte[] data1 = new byte[100];
                         data1 = Encoding.ASCII.GetBytes(average.ToString("#.##"));
                         netStream.Write(data1, 0, data1.Length);
                     }
@@ -142,11 +143,11 @@ namespace DSProject
 
         private void udpSockRegNodes() { // TODO Change from broadcast to multicast with different ports and IPs
             int localPort = 11100;
-            int remotePort = 22202; 
+            int remoteDefPort = 22200;
             RegReceiverSock = new UdpClient(localPort);
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, remotePort);
-            IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), remotePort);
-            List<int> registeredNodes = new List<int> ();
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, remoteDefPort);
+            //IPEndPoint broadCast = new IPEndPoint(IPAddress.Parse("255.255.255.255"), remotePort);
+            List<int> reregisteredNodes = new List<int>();
 
             byte[] data = new byte[1024];
             string[] stringData;
@@ -175,32 +176,40 @@ namespace DSProject
                 }
                 else {
                     byte[] data1 = Encoding.ASCII.GetBytes("IamYourNewAdmin");
-                    RegReceiverSock.Send(data1, data1.Length, broadCast);
-
-                    RegReceiverSock.Client.ReceiveTimeout = 5000;
-
-                    byte[] receivedData = null;
-                    try {
-                        receivedData = RegReceiverSock.Receive(ref sender);
+                    Debug.Assert(runningRegNodes != null, "runningRegNodes is null when you run admin shifting!");
+                    if (reregisteredNodes.Count == runningRegNodes.Count) {
+                        initialAdmin = true;
+                        continue;
                     }
-                    catch (Exception e) {
-                        byte[] receivedData1 = null;
-                    }
-                    if (receivedData == null) continue;
-                    string[] strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
-                    if (!strAr[0].Equals("reregMe")) continue;
-                    int id = Convert.ToInt16(strAr[1]);
-                    if (!registeredNodes.Contains(id)) {
-                        registeredNodes.Add(id);
-                        if (registeredNodes.Count == NodesNum) {
-                            initialAdmin = true;
+
+                    foreach (KeyValuePair<int, string> item in runningRegNodes) {
+
+                        if (reregisteredNodes.Contains(item.Key)) continue;
+                        IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(item.Value), remoteDefPort + item.Key);
+                        RegReceiverSock.Send(data1, data1.Length, remoteEndPoint);
+                        RegReceiverSock.Client.ReceiveTimeout = 2000;
+
+                        byte[] receivedData = null;
+                        try {
+                            receivedData = RegReceiverSock.Receive(ref sender);
+                        }
+                        catch (Exception e) {
+                            byte[] receivedData1 = null;
+                        }
+                        if (receivedData == null) continue;
+                        string[] strAr = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length).Split('_');
+                        if (!strAr[0].Equals("reregMe")) continue;
+                        int id = Convert.ToInt16(strAr[1]);
+                        reregisteredNodes.Add(id);
+                        if (!dataStore.addNewNode(id)) {
+                            node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
                         }
                     }
-                    
+
                 }
 
             }
-   
+
         }
 
         private void udpSockReceiverTemp() {
@@ -222,15 +231,16 @@ namespace DSProject
                 stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
                 int id = Convert.ToInt16(stringData[0]);
                 int val = Convert.ToInt16(stringData[1]);
-                blockingWriteTransaction(id, val);
+                string senderIP = sender.Address.ToString();
+                blockingWriteTransaction(id, val, senderIP);
             }
         }
 
-        private void blockingWriteTransaction(int id, int val) {
+        private void blockingWriteTransaction(int id, int val, string ip) {
             lock (lockObject) {
                 if (dataStore.write(id, val)) {
                     node.Form.appendTextToRichTB(String.Format("I am:{0}; Temp:{1}\n", id, val));
-                    udpSockSendRegTemp(userEndPoint, id + "_" + val);
+                    udpSockSendRegTemp(userEndPoint, id + "_" + val + "_" + ip);
                 }
                 else {
                     node.Form.appendTextToRichTB(String.Format("Not registered Node {0} trying to send data\n", id));
@@ -244,6 +254,6 @@ namespace DSProject
             sock.Send(data, data.Length, receiverEndPoint);
             sock.Close();
         }
-       
+
     }
 }

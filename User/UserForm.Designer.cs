@@ -63,9 +63,9 @@
             this.buttonGetAverage = new System.Windows.Forms.Button();
             this.rBAverage = new System.Windows.Forms.RichTextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBoxNewAdminIP = new System.Windows.Forms.TextBox();
+            this.textBoxNewAdminID = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBoxAdminPort = new System.Windows.Forms.TextBox();
+            this.textBoxAdminID = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -157,7 +157,7 @@
             this.textBoxAdminIP.Name = "textBoxAdminIP";
             this.textBoxAdminIP.Size = new System.Drawing.Size(88, 20);
             this.textBoxAdminIP.TabIndex = 2;
-            this.textBoxAdminIP.Text = "127.0.0.1";
+            this.textBoxAdminIP.Text = "192.168.0.11";
             // 
             // buttonGetAverage
             // 
@@ -182,45 +182,45 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 214);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(74, 13);
+            this.label3.Size = new System.Drawing.Size(75, 13);
             this.label3.TabIndex = 9;
-            this.label3.Text = "New Admin IP";
+            this.label3.Text = "New Admin ID";
             this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
-            // textBoxNewAdminIP
+            // textBoxNewAdminID
             // 
-            this.textBoxNewAdminIP.Location = new System.Drawing.Point(92, 214);
-            this.textBoxNewAdminIP.Name = "textBoxNewAdminIP";
-            this.textBoxNewAdminIP.Size = new System.Drawing.Size(84, 20);
-            this.textBoxNewAdminIP.TabIndex = 10;
-            this.textBoxNewAdminIP.Text = "127.0.0.1";
+            this.textBoxNewAdminID.Location = new System.Drawing.Point(92, 214);
+            this.textBoxNewAdminID.Name = "textBoxNewAdminID";
+            this.textBoxNewAdminID.Size = new System.Drawing.Size(84, 20);
+            this.textBoxNewAdminID.TabIndex = 10;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(18, 33);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(58, 13);
+            this.label4.Size = new System.Drawing.Size(50, 13);
             this.label4.TabIndex = 11;
-            this.label4.Text = "Admin Port";
+            this.label4.Text = "Admin ID";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
-            // textBoxAdminPort
+            // textBoxAdminID
             // 
-            this.textBoxAdminPort.Location = new System.Drawing.Point(92, 30);
-            this.textBoxAdminPort.Name = "textBoxAdminPort";
-            this.textBoxAdminPort.Size = new System.Drawing.Size(88, 20);
-            this.textBoxAdminPort.TabIndex = 12;
-            this.textBoxAdminPort.Text = "30000";
+            this.textBoxAdminID.Location = new System.Drawing.Point(92, 30);
+            this.textBoxAdminID.Name = "textBoxAdminID";
+            this.textBoxAdminID.Size = new System.Drawing.Size(88, 20);
+            this.textBoxAdminID.TabIndex = 12;
+            this.textBoxAdminID.Text = "0";
+            this.textBoxAdminID.TextChanged += new System.EventHandler(this.textBoxAdminPort_TextChanged);
             // 
             // UserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(425, 339);
-            this.Controls.Add(this.textBoxAdminPort);
+            this.Controls.Add(this.textBoxAdminID);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.textBoxNewAdminIP);
+            this.Controls.Add(this.textBoxNewAdminID);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.rBAverage);
             this.Controls.Add(this.buttonGetAverage);
@@ -256,9 +256,9 @@
         private System.Windows.Forms.Button buttonGetAverage;
         private System.Windows.Forms.RichTextBox rBAverage;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBoxNewAdminIP;
+        private System.Windows.Forms.TextBox textBoxNewAdminID;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBoxAdminPort;
+        private System.Windows.Forms.TextBox textBoxAdminID;
     }
 }
 

@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Windows.Forms;
 
 namespace User
 {
     public class User
     {
-        public List<int> NodeIds { get; set; }
+        public Dictionary<int, string> NodeIds { get; set; }
         public bool StopReceive { get; set; }
         public UdpClient ReceiverSock;
 
@@ -26,13 +27,14 @@ namespace User
         public void userInit(UserForm userForm) {
 
             this.userForm = userForm;
-            this.NodeIds = new List<int>();
+            this.NodeIds = new Dictionary<int, string>();
 
             this.receiveRegTempThread = new Thread(UdpSockReceiverRegTemp);
             this.receiveRegTempThread.Start();
         }
 
-        public void tcpConnection(string remoteIP, string operation, int remotePort = 30000) {
+        public bool tcpConnection(string remoteIP, string operation, int remotePort = 30000) {
+            bool result = false;
             TcpClient client = null;
             NetworkStream netStream = null;
             try {
@@ -50,16 +52,24 @@ namespace User
                     string stringData = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0');
                     userForm.appendTextToRichTBGetAverage(stringData+"\n");
                 }
-                
+                result = true;
             } 
             catch (Exception e) {
-                Console.WriteLine(e.Message);
-                //When User starts while no nodes run, make a pop up to inform with what should he do
+                if (e is SocketException) {
+                    if (e.Message.Contains("No connection could be made")) {
+                        MessageBox.Show("Node you are trying to connect to is currently off! Please start it first!");
+                        result = false;
+                    }
+                    
+                }
             } 
             finally{
-                netStream.Close();
-                client.Close();
+                if(netStream != null)
+                    netStream.Close();
+                if(client != null)
+                    client.Close();
             }
+            return result;
         }
 
         private void UdpSockReceiverRegTemp() {
@@ -70,7 +80,6 @@ namespace User
 
             while ( true ) {
                 if ( StopReceive ) {
-                    ReceiverSock.Close();
                     break;
                 }
                 try {
@@ -83,10 +92,12 @@ namespace User
                 userForm.appendTextToRichTB("ID: " + strAr[0] + " Temp:" + strAr[1] + "\n ");
 
                 int id = Convert.ToInt16( strAr[0]);
-                if (!NodeIds.Contains(id)) {
-                    NodeIds.Add(id);
+                string ip = strAr[2];
+                if (!NodeIds.ContainsKey(id)) {
+                    NodeIds.Add(id,ip);
                 }
             }
+            ReceiverSock.Close();
         }
 
     }

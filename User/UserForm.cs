@@ -14,7 +14,9 @@ namespace User
     public partial class UserForm : Form
     {
 
-        private User m_user;
+        private User user;
+
+        private int defaultNodePort = 30000;
 
         public UserForm(User user) {
             InitializeComponent();
@@ -22,7 +24,7 @@ namespace User
             rBPermanentFailure.Checked = true;
             buttonGetAverage.Enabled = false;
             buttonFailAdmin.Enabled = false;
-            m_user = user;
+            this.user = user;
         }
 
         private void label1_Click(object sender, EventArgs e) {
@@ -34,14 +36,19 @@ namespace User
         }
 
         private void buttonInput_Click(object sender, EventArgs e) {
-            m_user.userInit(this);
-            m_user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin", Convert.ToInt32(textBoxAdminPort.Text));
+            user.userInit(this);
+            bool res =  user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin", defaultNodePort +  Convert.ToInt32(textBoxAdminID.Text));
+            if (res) {
+                buttonStart.Enabled = false;
+                textBoxAdminID.Enabled = false;
+                textBoxAdminIP.Enabled = false;
+                buttonFailAdmin.Enabled = true;
+                buttonGetAverage.Enabled = true;
+            }
+            else {
+                user.StopReceive = true;
+            }
 
-            buttonStart.Enabled = false;
-            textBoxAdminPort.Enabled = false;
-            textBoxAdminIP.Enabled = false;
-            buttonFailAdmin.Enabled = true;
-            buttonGetAverage.Enabled = true;
         }
 
         private void UserForm_Load(object sender, EventArgs e) {
@@ -49,8 +56,8 @@ namespace User
         }
 
         private void UserForm_FormClosing(object sender, FormClosingEventArgs e) {
-            m_user.StopReceive = true;
-            m_user.ReceiverSock.Close();
+            user.StopReceive = true;
+            user.ReceiverSock.Close();
         }
 
         private void groupBox1_Enter(object sender, EventArgs e) {
@@ -58,22 +65,54 @@ namespace User
         }
 
         private void buttonGetAverage_Click(object sender, EventArgs e) {
-            m_user.tcpConnection(textBoxAdminIP.Text, "getAverage", 33000);
+            user.tcpConnection(textBoxAdminIP.Text, "getAverage", 33000);
         }
 
         private void buttonFailAdmin_Click(object sender, EventArgs e) {
             int numNodes;
+            string newAdminIp;
+            int newAdminId;
+            if(user.NodeIds.Count == 1){
+                MessageBox.Show("In oder to execute the function you should have at least 2 nodes!");
+                return;
+            }
+            try {
+                newAdminId = Convert.ToInt16(textBoxNewAdminID.Text);
+            }
+            catch (FormatException ex) {
+                MessageBox.Show("Use integer number for the new admin! Try again!");
+                return;
+            }
+            if (!user.NodeIds.TryGetValue(newAdminId, out newAdminIp)) {
+                MessageBox.Show("The ID of new admin does not exist! Try again!");
+                return;
+            }
+            int prevAdminId = prevAdminId = Convert.ToInt16(textBoxAdminID.Text) ;
+
+            if (newAdminId == prevAdminId) {
+                MessageBox.Show("New Admin should be different from previous admin, choose different Id!");
+                return;
+            }
+
             if (rBPermanentFailure.Checked == true) {
-                m_user.tcpConnection(textBoxAdminIP.Text, "permanentFail", 33000);
-                numNodes = m_user.NodeIds.Count-1;
+                user.tcpConnection(textBoxAdminIP.Text, "permanentFail", 33000);
             }
             else {
-                m_user.tcpConnection(textBoxAdminIP.Text, "temporaryFail", 33000);
-                numNodes = m_user.NodeIds.Count;
+                user.tcpConnection(textBoxAdminIP.Text, "temporaryFail", 33000);
             }
-            Thread.Sleep(1000);
-            m_user.tcpConnection(textBoxNewAdminIP.Text, "youNewAdmin-NodesNum_" + numNodes);
-            textBoxAdminIP.Text = textBoxNewAdminIP.Text;
+            user.NodeIds.Remove(prevAdminId);
+            user.NodeIds.Remove(newAdminId);
+            numNodes = user.NodeIds.Count - 1;
+
+            Thread.Sleep(500);
+            string str = "youNewAdmin-NodesNum_" + numNodes + ";";
+            foreach(KeyValuePair<int, string> item in user.NodeIds){
+                str += item.Key + "_" + item.Value + ";";
+            }
+            str = str.TrimEnd(';');
+            user.tcpConnection(newAdminIp, str, defaultNodePort + newAdminId);
+            textBoxAdminIP.Text = newAdminIp;
+            textBoxAdminID.Text = newAdminId.ToString();
         }
 
         private void label3_Click(object sender, EventArgs e) {
@@ -81,6 +120,10 @@ namespace User
         }
 
         private void label4_Click(object sender, EventArgs e) {
+
+        }
+
+        private void textBoxAdminPort_TextChanged(object sender, EventArgs e) {
 
         }
     }

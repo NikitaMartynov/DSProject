@@ -20,7 +20,9 @@ namespace User
             try {
                 Application.Run(new UserForm(user));
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                string str = "sdg";
+            }
 
         }
     }
