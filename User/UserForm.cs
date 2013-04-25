@@ -123,8 +123,5 @@ namespace User
 
         }
 
-        private void textBoxAdminPort_TextChanged(object sender, EventArgs e) {
-
-        }
     }
 }

@@ -60,7 +60,6 @@ namespace User
                         MessageBox.Show("Node you are trying to connect to is currently off! Please start it first!");
                         result = false;
                     }
-                    
                 }
             } 
             finally{

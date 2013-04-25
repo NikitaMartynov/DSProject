@@ -14,8 +14,7 @@ namespace DSProject
     public partial class NodeForm : Form
     {
         private Node node;
-        public NodeForm(Node node)
-        {
+        public NodeForm(Node node) {
             InitializeComponent();
 
             richTextBoxTemp.Enabled = true;
@@ -23,36 +22,18 @@ namespace DSProject
             this.node = node;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-         //   CancelButton = true;
-           int a = 0; 
-            a += 1;
+        private void Form1_Load(object sender, EventArgs e) {
+
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
+        private void button1_Click(object sender, EventArgs e) {
+
             int id = Convert.ToInt16(this.textBoxID.Text);
             NodeType nodeType;
             int nodesNum = 0;
-           // IPEndPoint adminEndpoint = new IPEndPoint(IPAddress.Parse(textBoxAdminIP.Text), 
-           //                                             Convert.ToInt32(textBoxAdminPort.Text) );
-           // var checkedButton = groupBoxNodeType.Controls.OfType<RadioButton>()
-            //                          .FirstOrDefault(r => r.Checked);
-           // if(checkedButton.Equals(rBAdmin)){
-           //     nodeType = NodeType.ADMIN;
-           //     nodesNum = Convert.ToInt16(textBoxNodesNum.Text);
-           //     this.Text = "Admin";
-            //    this.richTextBoxTemp.Enabled = true;
-           // }
-           // else{
-            //     nodeType = NodeType.REGULAR;
-            //     this.Text = "Regular";
-           // }
-            node.setForm(this); 
+            node.setForm(this);
             node.nodeInit(id);
-            
+
             this.textBoxID.Enabled = false;
             this.buttonStart.Enabled = false;
         }
@@ -99,18 +80,13 @@ namespace DSProject
                 }
             }
             node.StopSend = true;
-            if(node.ListenerTcp != null)
+            if (node.ListenerTcp != null) 
                 node.ListenerTcp.Server.Close();
-           // this.Close();
+            node.sockUdpReg.Close();
+            // this.Close();
         }
 
         private void rBAdmin_CheckedChanged(object sender, EventArgs e) {
-         //   if (rBAdmin.Checked == true) {
-         //       textBoxNodesNum.Enabled = true;
-         //   }
-         //   else {
-         //       textBoxNodesNum.Enabled = false;
-          //  }
 
         }
 

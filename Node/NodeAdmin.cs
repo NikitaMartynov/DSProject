@@ -159,6 +159,7 @@ namespace DSProject
                         data = RegReceiverSock.Receive(ref sender);
                     }
                     catch (Exception e) {
+                        if(e.Message.Contains("connection attempt failed because the")) continue;
                         // TODO Exception Receive fail because connected party respond false on the request, after admin 
                         //node changed, so no new nodes can be registered
                         break;

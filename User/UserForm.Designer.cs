@@ -157,7 +157,7 @@
             this.textBoxAdminIP.Name = "textBoxAdminIP";
             this.textBoxAdminIP.Size = new System.Drawing.Size(88, 20);
             this.textBoxAdminIP.TabIndex = 2;
-            this.textBoxAdminIP.Text = "192.168.0.11";
+            this.textBoxAdminIP.Text = "127.0.0.1";
             // 
             // buttonGetAverage
             // 
@@ -211,7 +211,6 @@
             this.textBoxAdminID.Size = new System.Drawing.Size(88, 20);
             this.textBoxAdminID.TabIndex = 12;
             this.textBoxAdminID.Text = "0";
-            this.textBoxAdminID.TextChanged += new System.EventHandler(this.textBoxAdminPort_TextChanged);
             // 
             // UserForm
             // 

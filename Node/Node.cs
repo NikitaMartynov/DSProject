@@ -26,7 +26,9 @@ namespace DSProject
         public bool StopSend { get; set; } // check does it helpful or not
         public NodeAdmin NodeAdmin;
         public TcpListener ListenerTcp;
+        public UdpClient sockUdpReg;
 
+        
         private string adminIP;
         private IPEndPoint adminEndpointData;
         private IPEndPoint adminEndpointReg;
@@ -74,6 +76,7 @@ namespace DSProject
             adminIP = null;
             adminEndpointData = null;
             adminEndpointReg = null;
+            sockUdpReg.Close();
             this.NodeAdmin = null;
             this.NodeType = NodeType.REGULAR;
             Thread.Sleep(10000);
@@ -157,18 +160,18 @@ namespace DSProject
                 if (StopSend == true) {
                     break;
                 }
-                UdpClient sock = new UdpClient(localPort); 
-                sock.EnableBroadcast = true;
+                sockUdpReg = new UdpClient(localPort);
+                sockUdpReg.EnableBroadcast = true;
                 if (adminIP == null) {
 
                     byte[] data = Encoding.ASCII.GetBytes("regMe_" + Id.ToString());
-                    sock.Send(data, data.Length, broadCast);
+                    sockUdpReg.Send(data, data.Length, broadCast);
 
-                    sock.Client.ReceiveTimeout = 5000;
+                    sockUdpReg.Client.ReceiveTimeout = 5000;
 
                     byte[] receivedData = null;
                     try {
-                        receivedData = sock.Receive(ref sender);
+                        receivedData = sockUdpReg.Receive(ref sender);
                     }
                     catch (Exception e) {
                         byte[] receivedData1 = null;
@@ -184,20 +187,21 @@ namespace DSProject
                 else {
                     byte[] receivedData = null;
                     try {
-                        receivedData = sock.Receive(ref sender);
+                        receivedData = sockUdpReg.Receive(ref sender);
                     }
                     catch (Exception e) {
                         byte[] receivedData1 = null;
                     }
+                    if (receivedData == null) break;
                     string stringData = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length);
                     if (stringData.Equals("IamYourNewAdmin")) {
                         adminIP = sender.Address.ToString();
                         adminEndpointReg.Address = IPAddress.Parse(adminIP);
                         byte[] data = Encoding.ASCII.GetBytes("reregMe_" + Id.ToString());
-                        sock.Send(data, data.Length, adminEndpointReg);
+                        sockUdpReg.Send(data, data.Length, adminEndpointReg);
                     }
                 }
-                sock.Close();
+                sockUdpReg.Close();
             }
         }
 
