@@ -8,6 +8,7 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace DSProject
 {
@@ -218,6 +219,7 @@ namespace DSProject
                             node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
                         }
                     }
+
                 }
             }
         }
@@ -252,6 +254,39 @@ namespace DSProject
             }
         }
 
+        public void tcpSendIpToUser(string operation, int remotePort = 40000)
+        {
+            string remoteIP = userEndPoint.Address+"";
+            TcpClient client = null;
+            NetworkStream netStream = null;
+            try
+            {
+                // Create socket that is connected to server on specified port
+                client = new TcpClient(remoteIP, remotePort);
+                netStream = client.GetStream();
+                byte[] data = Encoding.ASCII.GetBytes(operation);
+                netStream.Write(data, 0, data.Length);
+            }
+            catch (Exception e)
+            {
+                if (e is SocketException)
+                {
+                    if (e.Message.Contains("No connection could be made"))
+                    {
+                        MessageBox.Show("User is off! System not expect this!");
+                    }
+                }
+            }
+            finally
+            {
+                if(netStream != null)
+                    netStream.Close();
+                if(client != null)
+                    client.Close();
+            }
+
+        }
+
         private void blockingWriteTransaction(int id, int val, string ip, int clk)
         {
             lock (lockObject)
@@ -260,9 +295,9 @@ namespace DSProject
                 {
                     node.Form.appendTextToRichTB(String.Format("I am:{0}; Temp:{1}\n", id, val));
                     if(dataStore.newNode)
-                        udpSockSendRegTemp(userEndPoint, id + "_" + val + "_" + ip);
-                    else
-                        udpSockSendRegTemp(userEndPoint, id + "_" + val);
+                        tcpSendIpToUser(id+"_"+ip);
+
+                    udpSockSendRegTemp(userEndPoint, id + "_" + val);
                 }
                 else
                 {

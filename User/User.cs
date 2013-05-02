@@ -15,9 +15,11 @@ namespace User
         public Dictionary<int, string> NodeIds { get; set; }
         public bool StopReceive { get; set; }
         public UdpClient ReceiverSock;
+        public TcpListener ListenerTcp;
 
         private UserForm userForm;
         private Thread receiveRegTempThread;
+        private Thread receiveIpsThread;
         public int AdminNodeId { get; set; }
         public User() { }
 
@@ -28,6 +30,8 @@ namespace User
 
             this.receiveRegTempThread = new Thread(UdpSockReceiverRegTemp);
             this.receiveRegTempThread.Start();
+            this.receiveIpsThread = new Thread(tcpReceiveNodeIP);
+            this.receiveIpsThread.Start();
         }
 
         public bool tcpConnection(string remoteIP, string operation, int remotePort = 30000) 
@@ -100,56 +104,65 @@ namespace User
                 }
                 strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
                 userForm.appendTextToRichTB("ID: " + strAr[0] + " Temp:" + strAr[1] + "\n");
-                if (strAr.Length > 2)
-                {
-                    int id = Convert.ToInt16(strAr[0]);
-                    string ip = strAr[2];
-                    if (!NodeIds.ContainsKey(id))
-                    {
-                        NodeIds.Add(id, ip);
-                    }
-                }
+                //if (strAr.Length > 2)
+                //{
+                //    int id = Convert.ToInt16(strAr[0]);
+                //    string ip = strAr[2];
+                //    if (!NodeIds.ContainsKey(id))
+                //    {
+                //        NodeIds.Add(id, ip);
+                //    }
+                //}
             }
             ReceiverSock.Close();
         }
 
-        //todo
-        public void UdpSockReceiverRegNode()
+        private void tcpReceiveNodeIP()
         {
-            UdpClient TempReceiverSock = new UdpClient(11112);
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 22200);
-            TempReceiverSock.Client.ReceiveTimeout = 5000;
+            int servPort = 40000;
+            ListenerTcp = null;
+            try
+            {
+                // Create a TCPListener to accept client connections
+                ListenerTcp = new TcpListener(IPAddress.Any, servPort);
+                ListenerTcp.Start();
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine(e.ErrorCode + ": " + e.Message);
+                Environment.Exit(e.ErrorCode);
+            }
+
             byte[] data = new byte[1024];
-            string[] stringData;
+            string[] strAr;
             while (true)
             {
-                if (StopReceive == true)
-                {
-                    TempReceiverSock.Close();
-                    break;
-                }
+                TcpClient client = null;
+                NetworkStream netStream = null;
+
                 try
                 {
-                    data = TempReceiverSock.Receive(ref sender);
+                    client = ListenerTcp.AcceptTcpClient();
+                    netStream = client.GetStream();
+
+                    string userIP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                    netStream.Read(data, 0, data.Length);
+
+                    strAr = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0').Split('_');
+                     int id = Convert.ToInt16(strAr[0]);
+                     string ip = strAr[1];
+                     if (!NodeIds.ContainsKey(id))
+                            NodeIds.Add(id, ip);
+                    netStream.Close();
+                    client.Close();
                 }
-                catch (Exception){}
-                if (data != null)
+                catch (Exception e)
                 {
-                    stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
-                    if (stringData[0].Equals("regMe"))
-                    {
-                        int id = Convert.ToInt16(stringData[1]);
-                        string senderIP = sender.Address.ToString();
-                        if (!NodeIds.Keys.Contains(id))
-                        {
-                            NodeIds.Add(id, sender.Address + "");
-                            userForm.comBoxNodeIpAndId("Id:" + id + " IP:" + senderIP);
-                        }
-                    }
+                    MessageBox.Show(e.Message);
+                    break;
                 }
             }
-            TempReceiverSock.Close();
         }
-        
+       
     }
 }

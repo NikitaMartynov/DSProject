@@ -15,7 +15,7 @@ namespace User
     {
 
         private User user;
-        private Thread receiveRegNodeThread;
+        //private Thread receiveRegNodeThread;
         private int defaultNodePort = 30000;
 
         public UserForm(User user) 
@@ -27,8 +27,8 @@ namespace User
             buttonFailAdmin.Enabled = false;
             this.user = user;
 
-            this.receiveRegNodeThread = new Thread(this.user.UdpSockReceiverRegNode);
-            this.receiveRegNodeThread.Start();
+            //this.receiveRegNodeThread = new Thread(this.user.UdpSockReceiverRegNode);
+            //this.receiveRegNodeThread.Start();
         }
 
         private void buttonInput_Click(object sender, EventArgs e) {
@@ -49,9 +49,11 @@ namespace User
         }
 
 
-        private void UserForm_FormClosing(object sender, FormClosingEventArgs e) {
+        private void UserForm_FormClosing(object sender, FormClosingEventArgs e) 
+        {
             user.StopReceive = true;
             user.ReceiverSock.Close();
+            user.ListenerTcp.Server.Close();
         }
 
 
