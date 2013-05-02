@@ -62,7 +62,7 @@ namespace DSProject
 
         public void nodeInit(int id) 
         {
-            Form.Text =  "Node IP:" + getLocalIPAddress();
+            Form.setFormText("Node IP:" + getLocalIPAddress());
             this.Id = id;
             this.adminIP = null;
             this.adminEndpointData = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11111);
@@ -96,12 +96,16 @@ namespace DSProject
             ListenerTcp.Server.Close();
             StopSend = true;
             adminIP = null;
-            adminEndpointData = null;
-            adminEndpointReg = null;
+
             sockUdpReg.Close();
             this.NodeAdmin = null;
             this.NodeType = NodeType.REGULAR;
-            Thread.Sleep(10000);
+            try {
+                Thread.Sleep(10000);
+            }
+            catch(Exception ex){}
+            adminEndpointData = null;
+            adminEndpointReg = null;
             nodeInit(Id);
         }
 

@@ -21,13 +21,16 @@ namespace DSProject
         public bool StartedByUser { get; set; }
 
         private Dictionary<int, string> runningRegNodes;
+        List<int> reregisteredNodes;
         private bool initialAdmin;
 
         private DataStore dataStore; //DictionaryOfNodes<ListOfNodeValues>
         private Node node;
         private Thread regNodesThread;
+        private Thread receiveReRegThread;
         private Thread receiveTempThread;
         private Thread workWithUserThread;
+        
 
         private IPEndPoint userEndPoint;
 
@@ -150,10 +153,11 @@ namespace DSProject
             int remoteDefPort = 22200;
             RegReceiverSock = new UdpClient(localPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, remoteDefPort);
-            List<int> reregisteredNodes = new List<int>();
-
+            reregisteredNodes = new List<int>();
             byte[] data = new byte[1024];
             string[] stringData;
+            bool reRegStart = false;
+
             while (true) 
             {
                 if (StopReceive == true) 
@@ -167,7 +171,9 @@ namespace DSProject
                     {
                         data = RegReceiverSock.Receive(ref sender);
                     }
-                    catch (Exception) { }
+                    catch (Exception) { 
+                        break; // for temporary fail 
+                    }
                     //{
                     //    if(e.Message.Contains("connection attempt failed because the")) continue;
                     //    // TODO Exception Receive fail because connected party respond false on the request, after admin 
@@ -189,11 +195,20 @@ namespace DSProject
                 }
                 else 
                 {
+                    if (!reRegStart) 
+                    {
+                        reregisteredNodes.Clear();
+                        receiveReRegThread = new Thread(udpReceiveReReg);
+                        receiveReRegThread.Start();
+                        reRegStart = true;
+                    }
+
                     byte[] data1 = Encoding.ASCII.GetBytes("IamYourNewAdmin");
                     Debug.Assert(runningRegNodes != null, "runningRegNodes is null when you run admin shifting!");
                     if (reregisteredNodes.Count == runningRegNodes.Count) 
                     {
                         initialAdmin = true;
+                        reRegStart = false;
                         continue;
                     }
 
@@ -202,8 +217,9 @@ namespace DSProject
                         if (reregisteredNodes.Contains(item.Key)) continue;
                         IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(item.Value), remoteDefPort + item.Key);
                         RegReceiverSock.Send(data1, data1.Length, remoteEndPoint);
-                        RegReceiverSock.Client.ReceiveTimeout = 2000;
+                       // RegReceiverSock.Client.ReceiveTimeout = 2000;
 
+                        /*
                         byte[] receivedData = null;
                         try 
                         {
@@ -218,10 +234,37 @@ namespace DSProject
                         if (!dataStore.addNewNode(id)) {
                             node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
                         }
+                        */
                     }
 
                 }
             }
+        }
+
+        private void udpReceiveReReg() 
+        {
+            int remoteDefPort = 22000;
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, remoteDefPort);
+            while (true) 
+            {
+                if (initialAdmin)
+                    break;
+
+                byte[] receivedData = null;
+                try {
+                    receivedData = RegReceiverSock.Receive(ref sender);
+                }
+                catch (Exception e) { }
+                if (receivedData == null) continue;
+                string[] strAr = Encoding.ASCII.GetString(receivedData, 0, receivedData.Length).Split('_');
+                if (!strAr[0].Equals("reregMe")) continue;
+                int id = Convert.ToInt16(strAr[1]);
+                reregisteredNodes.Add(id);
+                if (!dataStore.addNewNode(id)) {
+                    node.Form.appendTextToRichTB(String.Format("Node {0} already registered\n", id));
+                }
+            }
+
         }
 
         private void udpSockReceiverTemp() 

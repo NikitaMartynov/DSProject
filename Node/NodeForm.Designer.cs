@@ -39,6 +39,19 @@
 
         delegate void StringDelegate(string someValue);
 
+        public void setFormText(string str) {
+            try {
+                if (InvokeRequired)
+                    Invoke(new setFormTextDelegate(setFormText), str);
+                else
+                    this.Text = str;
+            }
+            catch (System.Exception ex) {
+            }
+        }
+
+        delegate void setFormTextDelegate(string value);
+
 
         public void UpdateTitle(string AdminOrNode)
         {

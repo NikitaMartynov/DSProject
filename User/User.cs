@@ -133,7 +133,7 @@ namespace User
                 Environment.Exit(e.ErrorCode);
             }
 
-            byte[] data = new byte[1024];
+            byte[] data = new byte[20];
             string[] strAr;
             while (true)
             {
@@ -146,6 +146,7 @@ namespace User
                     netStream = client.GetStream();
 
                     string userIP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                    data = new byte[20];
                     netStream.Read(data, 0, data.Length);
 
                     strAr = Encoding.ASCII.GetString(data, 0, data.Length).Trim('\0').Split('_');
@@ -155,6 +156,7 @@ namespace User
                             NodeIds.Add(id, ip);
                     netStream.Close();
                     client.Close();
+                    strAr = null;
                 }
                 catch (Exception e)
                 {
