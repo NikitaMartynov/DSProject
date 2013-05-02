@@ -15,29 +15,27 @@ namespace User
     {
 
         private User user;
-
+        private Thread receiveRegNodeThread;
         private int defaultNodePort = 30000;
 
-        public UserForm(User user) {
+        public UserForm(User user) 
+        {
             InitializeComponent();
 
             rBPermanentFailure.Checked = true;
             buttonGetAverage.Enabled = false;
             buttonFailAdmin.Enabled = false;
             this.user = user;
-        }
 
-        private void label1_Click(object sender, EventArgs e) {
-
-        }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e) {
-
+            this.receiveRegNodeThread = new Thread(this.user.UdpSockReceiverRegNode);
+            this.receiveRegNodeThread.Start();
         }
 
         private void buttonInput_Click(object sender, EventArgs e) {
             user.userInit(this);
-            bool res =  user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin", defaultNodePort +  Convert.ToInt32(textBoxAdminID.Text));
+            int AdminNodeId = Convert.ToInt32(textBoxAdminID.Text);
+            user.AdminNodeId = AdminNodeId;
+            bool res = user.tcpConnection(textBoxAdminIP.Text, "youInitialAdmin", defaultNodePort + AdminNodeId);
             if (res) {
                 buttonStart.Enabled = false;
                 textBoxAdminID.Enabled = false;
@@ -48,56 +46,57 @@ namespace User
             else {
                 user.StopReceive = true;
             }
-
         }
 
-        private void UserForm_Load(object sender, EventArgs e) {
-
-        }
 
         private void UserForm_FormClosing(object sender, FormClosingEventArgs e) {
             user.StopReceive = true;
             user.ReceiverSock.Close();
         }
 
-        private void groupBox1_Enter(object sender, EventArgs e) {
-
-        }
 
         private void buttonGetAverage_Click(object sender, EventArgs e) {
             user.tcpConnection(textBoxAdminIP.Text, "getAverage", 33000);
         }
 
-        private void buttonFailAdmin_Click(object sender, EventArgs e) {
+        private void buttonFailAdmin_Click(object sender, EventArgs e) 
+        {
             int numNodes;
             string newAdminIp;
             int newAdminId;
-            if(user.NodeIds.Count == 1){
+            if(user.NodeIds.Count == 1)
+            {
                 MessageBox.Show("In oder to execute the function you should have at least 2 nodes!");
                 return;
             }
-            try {
+            try 
+            {
                 newAdminId = Convert.ToInt16(textBoxNewAdminID.Text);
             }
-            catch (FormatException ex) {
+            catch (FormatException ex) 
+            {
                 MessageBox.Show("Use integer number for the new admin! Try again!");
                 return;
             }
-            if (!user.NodeIds.TryGetValue(newAdminId, out newAdminIp)) {
+            if (!user.NodeIds.TryGetValue(newAdminId, out newAdminIp)) 
+            {
                 MessageBox.Show("The ID of new admin does not exist! Try again!");
                 return;
             }
             int prevAdminId = prevAdminId = Convert.ToInt16(textBoxAdminID.Text) ;
 
-            if (newAdminId == prevAdminId) {
+            if (newAdminId == prevAdminId) 
+            {
                 MessageBox.Show("New Admin should be different from previous admin, choose different Id!");
                 return;
             }
 
-            if (rBPermanentFailure.Checked == true) {
+            if (rBPermanentFailure.Checked == true) 
+            {
                 user.tcpConnection(textBoxAdminIP.Text, "permanentFail", 33000);
             }
-            else {
+            else 
+            {
                 user.tcpConnection(textBoxAdminIP.Text, "temporaryFail", 33000);
             }
             user.NodeIds.Remove(prevAdminId);
@@ -106,7 +105,8 @@ namespace User
 
             Thread.Sleep(500);
             string str = "youNewAdmin-NodesNum_" + numNodes + ";";
-            foreach(KeyValuePair<int, string> item in user.NodeIds){
+            foreach(KeyValuePair<int, string> item in user.NodeIds)
+            {
                 str += item.Key + "_" + item.Value + ";";
             }
             str = str.TrimEnd(';');
@@ -114,14 +114,5 @@ namespace User
             textBoxAdminIP.Text = newAdminIp;
             textBoxAdminID.Text = newAdminId.ToString();
         }
-
-        private void label3_Click(object sender, EventArgs e) {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e) {
-
-        }
-
     }
 }

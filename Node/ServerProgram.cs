@@ -20,11 +20,14 @@ namespace DSProject
             Application.SetCompatibleTextRenderingDefault(false);
             Node node = new Node();
 
-            try{
+            try
+            {
                 Application.Run(new NodeForm(node));
             }
-            catch (Exception ex) {
-                string str = "sdg";
+            catch (Exception ex) 
+            {
+                //string str = "sdg";
+                MessageBox.Show("sdg: " + ex);
             }
         }
     }

@@ -18,14 +18,11 @@ namespace User
 
         private UserForm userForm;
         private Thread receiveRegTempThread;
-
-        
-
-
+        public int AdminNodeId { get; set; }
         public User() { }
 
-        public void userInit(UserForm userForm) {
-
+        public void userInit(UserForm userForm) 
+        {
             this.userForm = userForm;
             this.NodeIds = new Dictionary<int, string>();
 
@@ -33,18 +30,21 @@ namespace User
             this.receiveRegTempThread.Start();
         }
 
-        public bool tcpConnection(string remoteIP, string operation, int remotePort = 30000) {
+        public bool tcpConnection(string remoteIP, string operation, int remotePort = 30000) 
+        {
             bool result = false;
             TcpClient client = null;
             NetworkStream netStream = null;
-            try {
+            try 
+            {
                 // Create socket that is connected to server on specified port
                 client = new TcpClient(remoteIP, remotePort);
                 netStream = client.GetStream();
                 byte[] data = Encoding.ASCII.GetBytes(operation);
                 netStream.Write(data, 0, data.Length);
 
-                if (operation == "getAverage") {
+                if (operation == "getAverage") 
+                {
                     int bytesRcvd = 0; // Bytes received in last read
                     //Receive the same string back from the server
                     Array.Clear(data, 0, data.Length);
@@ -54,15 +54,19 @@ namespace User
                 }
                 result = true;
             } 
-            catch (Exception e) {
-                if (e is SocketException) {
-                    if (e.Message.Contains("No connection could be made")) {
+            catch (Exception e) 
+            {
+                if (e is SocketException) 
+                {
+                    if (e.Message.Contains("No connection could be made"))
+                    {
                         MessageBox.Show("Node you are trying to connect to is currently off! Please start it first!");
                         result = false;
                     }
                 }
             } 
-            finally{
+            finally
+            {
                 if(netStream != null)
                     netStream.Close();
                 if(client != null)
@@ -71,33 +75,81 @@ namespace User
             return result;
         }
 
-        private void UdpSockReceiverRegTemp() {
+
+        private void UdpSockReceiverRegTemp()
+        {
             this.ReceiverSock = new UdpClient(33334);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 33333);
             byte[] data = new byte[1024];
             string[] strAr;
 
-            while ( true ) {
-                if ( StopReceive ) {
+            while (true)
+            {
+                if (StopReceive)
+                {
                     break;
                 }
-                try {
+
+                try
+                {
                     data = ReceiverSock.Receive(ref sender);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     break;
                 }
                 strAr = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
-                userForm.appendTextToRichTB("ID: " + strAr[0] + " Temp:" + strAr[1] + "\n ");
-
-                int id = Convert.ToInt16( strAr[0]);
-                string ip = strAr[2];
-                if (!NodeIds.ContainsKey(id)) {
-                    NodeIds.Add(id,ip);
+                userForm.appendTextToRichTB("ID: " + strAr[0] + " Temp:" + strAr[1] + "\n");
+                if (strAr.Length > 2)
+                {
+                    int id = Convert.ToInt16(strAr[0]);
+                    string ip = strAr[2];
+                    if (!NodeIds.ContainsKey(id))
+                    {
+                        NodeIds.Add(id, ip);
+                    }
                 }
             }
             ReceiverSock.Close();
         }
 
+        //todo
+        public void UdpSockReceiverRegNode()
+        {
+            UdpClient TempReceiverSock = new UdpClient(11112);
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 22200);
+            TempReceiverSock.Client.ReceiveTimeout = 5000;
+            byte[] data = new byte[1024];
+            string[] stringData;
+            while (true)
+            {
+                if (StopReceive == true)
+                {
+                    TempReceiverSock.Close();
+                    break;
+                }
+                try
+                {
+                    data = TempReceiverSock.Receive(ref sender);
+                }
+                catch (Exception){}
+                if (data != null)
+                {
+                    stringData = Encoding.ASCII.GetString(data, 0, data.Length).Split('_');
+                    if (stringData[0].Equals("regMe"))
+                    {
+                        int id = Convert.ToInt16(stringData[1]);
+                        string senderIP = sender.Address.ToString();
+                        if (!NodeIds.Keys.Contains(id))
+                        {
+                            NodeIds.Add(id, sender.Address + "");
+                            userForm.comBoxNodeIpAndId("Id:" + id + " IP:" + senderIP);
+                        }
+                    }
+                }
+            }
+            TempReceiverSock.Close();
+        }
+        
     }
 }

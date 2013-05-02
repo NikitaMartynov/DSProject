@@ -30,15 +30,31 @@
         }
 
         delegate void appendTextToRichTBDelegate(string value);
+        delegate void comboBoxDelegate(string value);
 
-        public void appendTextToRichTBGetAverage(string str) {
-            try {
+        public void appendTextToRichTBGetAverage(string str) 
+        {
+            try 
+            {
                 if (InvokeRequired)
                     Invoke(new appendTextToRichTBGetAverageDelegate(appendTextToRichTBGetAverage), str);
                 else
                     rBAverage.AppendText(str);
             }
-            catch (System.Exception ex) {
+            catch (System.Exception ex) {}
+        }
+
+        public void comBoxNodeIpAndId(string str)
+        {
+            try
+            {
+                if (InvokeRequired)
+                    Invoke(new comboBoxDelegate(comBoxNodeIpAndId), str);
+                else
+                    this.comboBoxNodesIpAndId.Items.Add(str);
+            }
+            catch (System.Exception ex)
+            {
             }
         }
 
@@ -66,6 +82,7 @@
             this.textBoxNewAdminID = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxAdminID = new System.Windows.Forms.TextBox();
+            this.comboBoxNodesIpAndId = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -81,17 +98,16 @@
             // 
             // richTextBoxRegTemp
             // 
-            this.richTextBoxRegTemp.Location = new System.Drawing.Point(182, 32);
+            this.richTextBoxRegTemp.Location = new System.Drawing.Point(182, 53);
             this.richTextBoxRegTemp.Name = "richTextBoxRegTemp";
             this.richTextBoxRegTemp.Size = new System.Drawing.Size(235, 160);
             this.richTextBoxRegTemp.TabIndex = 3;
             this.richTextBoxRegTemp.Text = "";
-            this.richTextBoxRegTemp.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(227, 13);
+            this.label2.Location = new System.Drawing.Point(227, 34);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(107, 13);
             this.label2.TabIndex = 4;
@@ -107,7 +123,6 @@
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Failure type";
-            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // rBPermanentFailure
             // 
@@ -149,7 +164,6 @@
             this.label1.Size = new System.Drawing.Size(49, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Admin IP";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // textBoxAdminIP
             // 
@@ -185,7 +199,6 @@
             this.label3.Size = new System.Drawing.Size(75, 13);
             this.label3.TabIndex = 9;
             this.label3.Text = "New Admin ID";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // textBoxNewAdminID
             // 
@@ -202,7 +215,6 @@
             this.label4.Size = new System.Drawing.Size(50, 13);
             this.label4.TabIndex = 11;
             this.label4.Text = "Admin ID";
-            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // textBoxAdminID
             // 
@@ -212,11 +224,20 @@
             this.textBoxAdminID.TabIndex = 12;
             this.textBoxAdminID.Text = "0";
             // 
+            // comboBoxNodesIpAndId
+            // 
+            this.comboBoxNodesIpAndId.FormattingEnabled = true;
+            this.comboBoxNodesIpAndId.Location = new System.Drawing.Point(194, 4);
+            this.comboBoxNodesIpAndId.Name = "comboBoxNodesIpAndId";
+            this.comboBoxNodesIpAndId.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxNodesIpAndId.TabIndex = 13;
+            // 
             // UserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(425, 339);
+            this.Controls.Add(this.comboBoxNodesIpAndId);
             this.Controls.Add(this.textBoxAdminID);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBoxNewAdminID);
@@ -233,7 +254,6 @@
             this.Name = "UserForm";
             this.Text = "User";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UserForm_FormClosing);
-            this.Load += new System.EventHandler(this.UserForm_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -258,6 +278,7 @@
         private System.Windows.Forms.TextBox textBoxNewAdminID;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxAdminID;
+        private System.Windows.Forms.ComboBox comboBoxNodesIpAndId;
     }
 }
 

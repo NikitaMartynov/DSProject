@@ -10,31 +10,57 @@ namespace DSProject
     {
         private Dictionary<int, List<int>> dataStore; //DictionaryOfNodes<ListOfNodeValues>
 
+        Dictionary<int, int> _cluck = new Dictionary<int, int>(); // int NodeId, int note cluck.
         public DataStore( )
         {
             this.dataStore = new Dictionary< int, List<int> >();
         }
 
-        public bool addNewNode(int id) {
+        public bool addNewNode(int id) 
+        {
             if (dataStore.ContainsKey(id))
                 return false;
-            else {
+            else 
+            {
                 dataStore.Add(id, new List<int>());
                 return true;
             }
         }
-        public bool write(int id, int value) {
+
+        public bool newNode { get; set; }
+
+        public bool write(int id, int value, int cluck) 
+        {
             List<int> listOfNodeVals;
             dataStore.TryGetValue(id, out listOfNodeVals);
-            if (listOfNodeVals == null) {
+            if (listOfNodeVals == null) 
                 return false;
-            }
-            else{
-                listOfNodeVals.Add(value);
-                return true;
+            else
+            {
+                if (_cluck.Keys.Contains(id))
+                {
+                    newNode = false;
+                    if (_cluck[id] < cluck)
+                    {
+                        _cluck[id] = cluck;
+                        listOfNodeVals.Add(value);
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                else
+                {
+                    newNode = true;
+                    _cluck.Add(id, cluck);
+                    listOfNodeVals.Add(value);
+                    return true;
+                }
             }
         }
-        public Dictionary< int, List<int>> getDataStore() {
+
+        public Dictionary< int, List<int>> getDataStore() 
+        {
             return dataStore;
         }
 

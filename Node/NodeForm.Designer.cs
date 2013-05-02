@@ -37,6 +37,27 @@
 
         delegate void appendTextToRichTBDelegate(string value);
 
+        delegate void StringDelegate(string someValue);
+
+
+        public void UpdateTitle(string AdminOrNode)
+        {
+            try
+            {
+                if (InvokeRequired)
+                    Invoke(new StringDelegate(UpdateTitle), AdminOrNode);
+                else
+                    this.Text=AdminOrNode;
+            }
+            catch (System.Exception ex){}
+            //this.Invoke(new InvokeDelegate(delegate()
+            //{ this.Form.Text = "Whatever2"; }));
+            //if (this.InvokeRequired)
+            //    this.Invoke(new StringDelgate(UpdateLabel, new object[] { newLabelText }));
+            //else
+            //    this.labelToUpdate.Text = newLabelText;
+        }
+
 
         #region Windows Form Designer generated code
 
@@ -68,7 +89,6 @@
             this.textBoxID.Name = "textBoxID";
             this.textBoxID.Size = new System.Drawing.Size(29, 20);
             this.textBoxID.TabIndex = 2;
-            this.textBoxID.TextChanged += new System.EventHandler(this.textBoxID_TextChanged);
             // 
             // label2
             // 
@@ -78,7 +98,6 @@
             this.label2.Size = new System.Drawing.Size(18, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "ID";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // richTextBoxTemp
             // 
@@ -87,7 +106,6 @@
             this.richTextBoxTemp.Size = new System.Drawing.Size(137, 147);
             this.richTextBoxTemp.TabIndex = 6;
             this.richTextBoxTemp.Text = "";
-            this.richTextBoxTemp.TextChanged += new System.EventHandler(this.richTextBoxTemp_TextChanged);
             // 
             // NodeForm
             // 
@@ -101,7 +119,6 @@
             this.Name = "NodeForm";
             this.Text = "Node";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
